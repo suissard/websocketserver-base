@@ -55,7 +55,7 @@ class Server extends io.Server {
 	}
 
 	setListener() {
-		console.log("🖥 WebsocketServer start ...");
+		console.log("🖥 WebsocketServer start");
 		this.on("connection", (socket) => {
 			this.handleConnection(socket);
 			for (let i in this.events) {

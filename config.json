@@ -1,5 +1,0 @@
-{
-	"WebSocketPort": 3000,
-	"websitePort":"8000",
-	"WSoptions": { "cors": { "origin": "*" } }
-}
