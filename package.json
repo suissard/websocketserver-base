@@ -8,6 +8,10 @@
   "author": "@suissard <clavier.jeremy@gmail.com>",
   "license": "CC0 1.0 Universal",
 
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/suissard/websocketserver-base.git"
+  },
 
   "dependencies": {
     "body-parser": "^1.20.0",
