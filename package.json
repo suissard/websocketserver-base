@@ -1,10 +1,10 @@
 {
   "name": "websocketserver-base",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.0.1",
+  "description": "WebSocket system, to connect users and allow them to tchating and handle/share private data",
   "main": "index.js",
 
-  "keywords": [],
+  "keywords": ["websocket", "users", "tchat", "data"],
   "author": "@suissard <clavier.jeremy@gmail.com>",
   "license": "CC0 1.0 Universal",
 
