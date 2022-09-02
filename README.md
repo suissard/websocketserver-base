@@ -1,2 +1,6 @@
-# WebSocketConnector
-System to connect users, tchating and handle private data
+# websocketserver-base
+WebSocket system, to connect users and allow them to tchating and handle/share private data
+
+
+
+[GitHub repository](https://github.com/suissard/websocketserver-base)
