@@ -7,14 +7,10 @@ const UsersManager = require("./UsersManager.js");
 /**
  *
  * @param {*} srv
- * @param {*} options Option du server
+ * @param {*} options
+ * @param {*} handlers function associé a un listener (pas de fonction anonyme)
  */
 class Server extends io.Server {
-	/**
-	 *
-	 * @param {*} srv
-	 * @param {*} options
-	 */
 	constructor(srv, options, handlers = {}) {
 		super(srv, options);
 		//TODO construire les event et leur function asscoccié, dans des fichier indépednant
@@ -80,12 +76,7 @@ class Server extends io.Server {
 
 			for (let listener in handlers) {
 				let handler = handlers[listener];
-				socket.on(listener, (data) => {
-					let authUser = this.users.findUserWithSocket(socket);
-					if (!authUser)
-						throw new Error("Need authentication")
-					handler(authUser, data, socket);
-				});
+				socket.on(listener, handler.bind(this, this.users.findUserWithSocket(socket), socket) );
 			}
 		});
 	}

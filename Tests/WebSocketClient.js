@@ -25,6 +25,10 @@ class WebSocketClient {
 			this.socket = socket
 			this.setListener(socket);
 	}
+	
+	emit(event, data){
+		this.socket.emit(event, data)
+	}
 }
 
 module.exports = WebSocketClient;

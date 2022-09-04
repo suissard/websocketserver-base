@@ -40,7 +40,7 @@ const createManager = function (
 	return { manager, adminUser, ownerUser, partialUser, publicUser, token };
 };
 
-const getServerData = async function () {
+const getServerData = async function (handlers) {
 	const username = "admin",
 		password = "admin",
 		url = "mqtt://192.168.1.38:1883",
@@ -58,14 +58,13 @@ const getServerData = async function () {
 		reconnectPeriod: 1000,
 	});
 
-	const server = new Server(WebSocketPort, WSoptions);
+	const server = new Server(WebSocketPort, WSoptions, handlers);
 	const userClientSide = new WebSocketClient(undefined, WebSocketPort);
 	const usernameServerSide = "testUser";
 
 	await userClientSide.connectSocket();
 	userClientSide.socket.emit("Login", { username: usernameServerSide });
 	await wait(400);
-	console.log('userClientSide.lastData', userClientSide.lastData)
 	const userServerSide = server.users.get(userClientSide.lastData.id);
 
 	if( !server || !userClientSide || !userServerSide ) throw new Error("ServerData a bugué")

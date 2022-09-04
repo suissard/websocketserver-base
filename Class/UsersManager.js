@@ -9,7 +9,6 @@ class UsersManager extends ObjectsManager {
 	constructor(lobbysManager, adminsId = []) {
 		super(adminsId, undefined, User);
 		this.lobbys = lobbysManager;
-		this.socketsUsers = new Map();
 	}
 
 	getIdCalculator() {
@@ -32,16 +31,11 @@ class UsersManager extends ObjectsManager {
 	 * @returns {User}
 	 */
 	findUserWithSocket(socket) {
-		let result = this.socketsUsers.get(socket.id);
-
-		if (!result) {
-			for (let [id, user] of this) if (user.socket.id == socket.id) result = user;
-			if (result)
-				console.error(
-					`Utilisateur présent dans la table des users mais pas dans la table socketusers`
-				);
-		}
-		return result;
+		for (let [id, user] of this) 
+			if (user.socket.id == socket.id) return user
+				
+		
+		return false
 	}
 
 	/**
@@ -82,11 +76,8 @@ class UsersManager extends ObjectsManager {
 				this.delete(user.getId(), user);
 				user.setId(id);
 			}
-		this.socketsUsers.delete(user.socket.id, user);
 
 		user.socket = socket;
-		this.socketsUsers.set(socket.id, user);
-
 		user.emit("Login", user.getPrivateInfo());
 		user.success("Reconnection reussi " + user.username);
 		return user;
@@ -118,7 +109,6 @@ class UsersManager extends ObjectsManager {
 	 */
 	logoutUser(user) {
 		this.delete(user.getId(), user);
-		this.socketsUsers.delete(user.socket.id, user);
 		user.warning(`Tu est déconnecté`);
 	}
 

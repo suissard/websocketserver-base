@@ -10,7 +10,6 @@ test("Server : login & logout et users", async () => {
 	userClientSide = serverData.userClientSide;
 	userServerSide = serverData.userServerSide;
 
-	console.log(userServerSide.username);
 	const findWithNoAutorization = server.users.find(() => {
 		return true;
 	});
@@ -53,7 +52,26 @@ test("Server : HandleUpdateUser", async () => {
 	);
 	await wait();
 	expect(userServerSide.username).toBe(updatedUsername);
+});
 
-	server.close();
-	wait(5000);
+test("Server : new listerner", async () => {
+	const serverData = await getServerData();
+	server = serverData.server;
+	userClientSide = serverData.userClientSide;
+	userServerSide = serverData.userServerSide;
+	const handlers = {
+		listener1: (x) => {
+			console.log("listener1", x);
+		},
+		listener2: (x) => {
+			console.log("listener2", x);
+		},
+		listener3: (x) => {
+			console.log("listener3", x);
+		},
+	};
+	// server = new Server(5000, undefined, handlers);
+	userClientSide.emit("listener1", "test1");
+	wait();
+	expect(userServerSide.ghug).toBe();
 });
