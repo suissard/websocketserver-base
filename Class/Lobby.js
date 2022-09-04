@@ -58,7 +58,7 @@ class Lobby extends ManageableObject {
 	connect(user) {
 		this.addUser(user);
 		user.lobbys.set(this.getId(), this);
-		this.emitToAll("ConnectLobby", { getId: this.getId(), user: user.getUserInfo() });
+		this.emitToAll("ConnectLobby", this.getPublicInfo());
 	}
 
 	/**
@@ -68,7 +68,7 @@ class Lobby extends ManageableObject {
 	disconnect(user) {
 		this.deleteUser(user);
 		user.lobbys.delete(this.getId(), this);
-		this.emitToAll("DisconnectLobby", { getId: this.getId(), user: user.getUserInfo() });
+		this.emitToAll("DisconnectLobby", this.getPublicInfo());
 	}
 
 	/**

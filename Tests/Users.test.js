@@ -1,8 +1,6 @@
 // TODO pas très carré
 import { test, expect } from "vitest";
 import wait from "../Tools/wait.js";
-import UsersManager from "../Class/UsersManager.js";
-import User from "../Class/User.js";
 
 import { getServerData } from "./serverData.js";
 import Lobby from "../Class/Lobby.js";
@@ -31,7 +29,7 @@ test("User : Basics", async () => {
 	expect(userServerSide.setLobbys(lobbys).size).toBe(3);
 });
 
-test("User : Basics", async () => {
+test("User : Infos", async () => {
 	var eventData = {
 		title: "testSuccess",
 		message: "testMessageSuccess",
@@ -44,40 +42,41 @@ test("User : Basics", async () => {
 	expect(userClientSide.lastData).toEqual(eventData);
 
 	expect(userServerSide.getPrivateInfo()).toEqual({
-		getId: userServerSide.getId(),
-		getOwner: { id: userServerSide.getId(), username: userServerSide.username },
-		getToken: userServerSide.getToken(),
-		getVisibility: userServerSide.getVisibility(),
-		getUsers: [],
-		createdAt: userServerSide.createdAt,
-		updatedAt: userServerSide.updatedAt,
-		username: userServerSide.username,
-		lobbys: new Map(),
+		id: userServerSide.getId(),
+		owner: { id: userServerSide.getId(), username: userServerSide.username },
+		token: userServerSide.getToken(),
+		visibility: userServerSide.getVisibility(),
+		users: [],
+		data: {
+			createdAt: userServerSide.createdAt,
+			updatedAt: userServerSide.updatedAt,
+			username: userServerSide.username,
+			lobbys: new Map(),
+		},
 	});
 
 	expect(userServerSide.getPartialInfo()).toEqual({
-		getId: userServerSide.getId(),
-		getOwner: { id: userServerSide.getId(), username: userServerSide.username },
-		getVisibility: userServerSide.getVisibility(),
-		getUsers: [],
-		username: userServerSide.username,
-		createdAt: userServerSide.createdAt,
-		updatedAt: userServerSide.updatedAt,
+		id: userServerSide.getId(),
+		owner: { id: userServerSide.getId(), username: userServerSide.username },
+		visibility: userServerSide.getVisibility(),
+		users: [],
+		data: {
+			username: userServerSide.username,
+			createdAt: userServerSide.createdAt,
+			updatedAt: userServerSide.updatedAt,
+		},
 	});
 
 	expect(userServerSide.getPublicInfo()).toEqual({
-		getId: userServerSide.getId(),
-		getOwner: { id: userServerSide.getId(), username: userServerSide.username },
-		getVisibility: userServerSide.getVisibility(),
-		getUsers: [],
-		username: userServerSide.username,
+		id: userServerSide.getId(),
+		owner: { id: userServerSide.getId(), username: userServerSide.username },
+		visibility: userServerSide.getVisibility(),
+		users: [],
+		data: { username: userServerSide.username },
 	});
 
 	expect(userServerSide.getUserInfo()).toEqual({
 		id: userServerSide.getId(),
 		username: userServerSide.username,
 	});
-
-	server.close();
-	wait(5000);
 });

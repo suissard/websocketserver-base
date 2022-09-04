@@ -139,6 +139,7 @@ test("Manager : Check the data access", async () => {
 		object
 	);
 	expect(manager.checkUserAccess(object.getId(), adminUser, "wrongToken")).toBe(object);
+
 	expect(() =>
 		manager.checkUserAccess(object.getId(), wrongUser, "wrongToken")
 	).toThrowError(`User ${wrongUser.username} don't have access`);
@@ -146,31 +147,34 @@ test("Manager : Check the data access", async () => {
 
 test("Manager : getInfo", async () => {
 	object.addUser(user3);
-	expect(() => manager.getInfo(object.getId(), wrongUser, "wrongToken")).toThrowError(
-		`User ${wrongUser.username} don't have access`
-	);
+	expect(manager.getInfo(object.getId(), wrongUser, "wrongToken")).toBe(undefined);
 
 	const infoFromOwner = JSON.parse(manager.getInfo(object.getId(), goodUser));
-	expect(infoFromOwner.getToken).toBe(object.getToken());
-	expect(infoFromOwner.test).toBe(object.test);
-	expect(infoFromOwner.test2).toBe(object.test2);
+	expect(infoFromOwner.token).toBe(object.getToken());
+	expect(infoFromOwner.data.test).toBe(object.test);
+	expect(infoFromOwner.data.test2).toBe(object.test2);
 
 	const infoFromUser = JSON.parse(manager.getInfo(object.getId(), user3));
-	expect(infoFromUser.getToken).toBe();
+	expect(infoFromUser.token).toBe();
 	expect(infoFromUser.test).toBe();
-	expect(infoFromUser.createdAt).toBe(object.createdAt);
-	expect(infoFromUser.getUsers[0].id).toBe(user3.getId());
+	expect(infoFromUser.data.createdAt).toBe(object.createdAt);
+	expect(infoFromUser.users[0].id).toBe(user3.getId());
 
 	object.setVisibility(true);
 	const infoFromPublic = JSON.parse(manager.getInfo(object.getId(), wrongUser));
 
-	expect(infoFromPublic.getId).toBe(object.getId());
-	expect(infoFromPublic.getOwner.id).toBe(object.getOwner().getId());
-	expect(infoFromPublic.getVisibility).toBe(object.getVisibility());
-	expect(infoFromPublic.getUsers[0].id).toBe("XXXX");
-	expect(infoFromPublic.createdAt).toBe();
-	expect(infoFromPublic.test).toBe();
+	expect(infoFromPublic.id).toBe(object.getId());
+	expect(infoFromPublic.owner.id).toBe(object.getOwner().getId());
+	expect(infoFromPublic.visibility).toBe(object.getVisibility());
+	expect(infoFromPublic.users[0].id).toBe("XXXX");
+	expect(infoFromPublic.data.createdAt).toBe();
+	expect(infoFromPublic.data.test).toBe();
 
 	object.setVisibility(false);
 	object.deleteUser(user3);
+});
+
+test("Manager : getInfos", async () => {
+	const infoFromOwner = manager.getInfos(adminUser);
+	expect(infoFromOwner.length).toBe(numberOfObject);
 });

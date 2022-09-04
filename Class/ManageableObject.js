@@ -46,12 +46,12 @@ class ManageableObject {
 		for (let i in this) data[i] = this[i];
 
 		return {
-			getId: this.getId(),
-			getOwner: this.getOwner().getUserInfo(),
-			getToken: this.getToken(),
-			getVisibility: this.getVisibility(),
-			getUsers: this.getUsers().map((x) => x.getUserInfo()),
-			...data,
+			id: this.getId(),
+			owner: this.getOwner().getUserInfo(),
+			token: this.getToken(),
+			visibility: this.getVisibility(),
+			users: this.getUsers().map((x) => x.getUserInfo()),
+			data,
 		};
 	}
 	/**
@@ -74,11 +74,11 @@ class ManageableObject {
 		}
 
 		data = {
-			getId: this.getId(),
-			getOwner: this.getOwner().getUserInfo(),
-			getVisibility: this.getVisibility(),
-			getUsers: this.getUsers().map((x) => x.getUserInfo()),
-			...data,
+			id: this.getId(),
+			owner: this.getOwner().getUserInfo(),
+			visibility: this.getVisibility(),
+			users: this.getUsers().map((x) => x.getUserInfo()),
+			data,
 		};
 		return data;
 	}
@@ -102,13 +102,13 @@ class ManageableObject {
 		}
 
 		data = {
-			getId: this.getId(),
-			getOwner: this.getOwner().getUserInfo(),
-			getVisibility: this.getVisibility(),
-			getUsers: this.getUsers().map((x) => {
+			id: this.getId(),
+			owner: this.getOwner().getUserInfo(),
+			visibility: this.getVisibility(),
+			users: this.getUsers().map((x) => {
 				return { id: "XXXX", username: "XXXX" };
 			}),
-			...data,
+			data,
 		};
 		return data;
 	}

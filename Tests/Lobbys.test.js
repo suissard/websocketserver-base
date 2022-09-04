@@ -87,7 +87,7 @@ test("Lobbys : fonctions server vers lobbyManager", async () => {
 
 	await wait();
 	expect(userClientSide.lastEvent).toBe("ConnectLobby");
-	expect(userClientSide.lastData.getId).toBe(id);
+	expect(userClientSide.lastData.id).toBe(id);
 	expect(lobby.userIsPresent(partialUser)).toBeTruthy();
 	expect(lobby.userIsPresent(ownerUser)).toBeTruthy();
 	expect(lobby.userIsPresent(adminUser)).toBeTruthy();
@@ -97,7 +97,7 @@ test("Lobbys : fonctions server vers lobbyManager", async () => {
 	server.handleDisconnectLobby(partialUser, data);
 	await wait();
 	expect(userClientSide.lastEvent).toBe("DisconnectLobby");
-	expect(userClientSide.lastData.getId).toBe(id);
+	expect(userClientSide.lastData.id).toBe(id);
 	expect(ownerUser.lobbys.has(id)).toBeTruthy();
 	expect(partialUser.lobbys.has(id)).toBeFalsy();
 });

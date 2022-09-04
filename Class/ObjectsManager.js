@@ -191,14 +191,25 @@ class ObjectsManager extends Map {
 		const object = this.get(id);
 		if (!object) throw new Error(`${this.getConstructor().name} ${id} don't exist`);
 		var data;
-		if (object.userIsOwner(user) || object.tokenGrantAccess(token))
+		if (object.userIsOwner(user) || object.tokenGrantAccess(token) || this.userIsAdmin(user))
 			data = object.getPrivateInfo();
 		else if (object.userIsPresent(user)) data = object.getPartialInfo();
 		else if (object.getVisibility()) data = object.getPublicInfo();
-		data.getActions = this.getActions(id, user, token);
+		if (data) data.actions = this.getActions(id, user, token);
 		return JSON.stringify(data);
 	}
 
+	
+	getInfos(user, token){
+		let result = []
+		let data = this.findAll(undefined, user, token)
+		for (let [id, obj] of this){
+			let info = this.getInfo(id, user, token)
+			
+			if(info) result .push(info)
+		}
+		return result
+	}
 	/**
 	 * Verifier l'accessibilité d'un object : utilisateur admin, object visible a tous, utilisateur est proprietaire, token correct. Renvoie erreur si incorrect
 	 * @param {Number} id Identifiant de l'objet cible
@@ -257,6 +268,7 @@ class ObjectsManager extends Map {
 		}
 		return result.length ? result : false;
 	}
+
 }
 
 module.exports = ObjectsManager;

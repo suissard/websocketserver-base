@@ -139,7 +139,7 @@ class User extends ManageableObject {
 
 	getPrivateInfo() {
 		let info = super.getPrivateInfo();
-		delete info.socket;
+		delete info.data.socket;
 		return info;
 	}
 	getPartialEntrie() {

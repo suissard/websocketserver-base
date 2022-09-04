@@ -32,7 +32,7 @@ test("Server : login & logout et users", async () => {
 	await wait();
 
 	expect(userClientSide.lastEvent).toBe("Login");
-	expect(userClientSide.lastData.getId).toBe(userServerSide.getPrivateInfo().getId);
+	expect(userClientSide.lastData.id).toBe(userServerSide.getPrivateInfo().id);
 	expect(server.users.size).toBe(1);
 	server.handleLogout(userServerSide);
 	await wait();
@@ -41,7 +41,7 @@ test("Server : login & logout et users", async () => {
 	expect(userServerSide).toBeFalsy();
 	userClientSide.socket.emit("Login", { username: userClientSide.lastData.username });
 	await wait();
-	userServerSide = server.users.get(userClientSide.lastData.getId);
+	userServerSide = server.users.get(userClientSide.lastData.id);
 });
 
 test("Server : HandleUpdateUser", async () => {

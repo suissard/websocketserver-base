@@ -35,6 +35,8 @@ const createManager = function (
 		`Création d'un manager de ${manager.size} ${manager.getConstructor().name}`
 	);
 
+	if( !manager || !adminUser || !ownerUser || !partialUser || !publicUser || !token) throw new Error("Manager a bugué")
+
 	return { manager, adminUser, ownerUser, partialUser, publicUser, token };
 };
 
@@ -56,14 +58,17 @@ const getServerData = async function () {
 		reconnectPeriod: 1000,
 	});
 
-	const server = new Server(WebSocketPort, WSoptions, client, {});
+	const server = new Server(WebSocketPort, WSoptions);
 	const userClientSide = new WebSocketClient(undefined, WebSocketPort);
 	const usernameServerSide = "testUser";
 
 	await userClientSide.connectSocket();
 	userClientSide.socket.emit("Login", { username: usernameServerSide });
 	await wait(400);
-	const userServerSide = server.users.get(userClientSide.lastData.getId);
+	console.log('userClientSide.lastData', userClientSide.lastData)
+	const userServerSide = server.users.get(userClientSide.lastData.id);
+
+	if( !server || !userClientSide || !userServerSide ) throw new Error("ServerData a bugué")
 
 	return { server, userClientSide, userServerSide };
 };

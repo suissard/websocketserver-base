@@ -2,11 +2,7 @@
 const io = require("socket.io"); //(3000, { cors: { origin: "*" } });
 
 const LobbysManager = require("./LobbysManager.js");
-const MessagesManager = require("./MessagesManager.js");
-const GamesManager = require("./Games/GameManager.js");
 const UsersManager = require("./UsersManager.js");
-const User = require("./User.js");
-
 
 /**
  *
@@ -19,10 +15,10 @@ class Server extends io.Server {
 	 * @param {*} srv
 	 * @param {*} options
 	 */
-	constructor(srv, options) {
+	constructor(srv, options, handlers = {}) {
 		super(srv, options);
 		//TODO construire les event et leur function asscoccié, dans des fichier indépednant
-		this.events = [
+		this.nativeListeners = [
 			"Login",
 			"Logout",
 			"Disconnect",
@@ -30,54 +26,47 @@ class Server extends io.Server {
 
 			"ConnectLobby",
 			"DisconnectLobby",
+
 			"SendMessage",
 			"ReceivedMessage",
 			"ViewedMessage",
-			"StartTypingMessage",
+			"TypingMessage",
 
 			"Data",
 			"GetAll",
-
-			"CreateGame",
-			"UpdateGame",
-			"ActionGame",
-
-			"PublishTopic",
-			"ConnectedObjectAction",
 		];
+
+		this.handlers = handlers;
 
 		this.users = new UsersManager();
 		this.lobbys = new LobbysManager();
-		this.games = new GamesManager();
-		this.messages = new MessagesManager();
 
-		this.setListener();
+		this.setListeners(this.nativeListeners, handlers);
 	}
 
-	setListener() {
+	setListeners(nativeListeners, handlers = {}) {
 		console.log("🖥 WebsocketServer start");
 		this.on("connection", (socket) => {
 			this.handleConnection(socket);
-			for (let i in this.events) {
+
+			for (let i in nativeListeners) {
+				let listener = this.nativeListeners[i];
 				try {
-					if (!this[`handle${this.events[i]}`]) continue;
-					socket.on(this.events[i], (data) => {
+					if (!this[`handle${listener}`] || handlers[listener]) continue;
+					socket.on(listener, (data) => {
 						let authUser = this.users.findUserWithSocket(socket);
-						if (!authUser && !["Login", "connexion"].includes(this.events[i]))
-							return socket.emit("error", {
-								title: "Authentifiez-vous",
-								message: "Il faut etre authentifié pour profiter de ces fonctionnalités",
-							});
+						if (!authUser && !["Login", "connexion"].includes(listener))
+							throw new Error("Need authentication");
 
 						try {
 							console.log(
-								`📥 ${this.events[i]} from ${socket.id}--${socket.request.connection.remoteAddress}`,
+								`📥 ${listener} from ${socket.id}--${socket.request.connection.remoteAddress}`,
 								data
 							);
-							this[`handle${this.events[i]}`](authUser, data, socket);
+							this[`handle${listener}`](authUser, data, socket);
 						} catch (error) {
 							console.error(
-								`ERROR ${this.events[i]} from ${socket.request.connection.remoteAddress}`,
+								`ERROR ${listener} from ${socket.request.connection.remoteAddress}`,
 								data,
 								error
 							);
@@ -85,17 +74,19 @@ class Server extends io.Server {
 						}
 					});
 				} catch (error) {
-					console.error(this.events[i], error);
+					console.error(listener, error);
 				}
 			} // Differents évenements a écouter
 
-			//log toute les emissions
-			// socket.onAny((eventName, data) => {
-			// 	console.log(
-			// 		`📤 ${eventName} to ${socket.id}--${socket.request.connection.remoteAddress}`,
-			// 		data
-			// 	);
-			// });
+			for (let listener in handlers) {
+				let handler = handlers[listener];
+				socket.on(listener, (data) => {
+					let authUser = this.users.findUserWithSocket(socket);
+					if (!authUser)
+						throw new Error("Need authentication")
+					handler(authUser, data, socket);
+				});
+			}
 		});
 	}
 
@@ -118,7 +109,7 @@ class Server extends io.Server {
 		let user = this.users.loginUser(socket, data);
 		user.emit("Login", this.users.getInfo(user.getId(), user));
 
-// TODO Envoyer toutes les informations
+		// TODO Envoyer toutes les informations
 		// for (let i in allData) user.emit("dataUpdate", allData[i]);
 	}
 
@@ -156,6 +147,8 @@ class Server extends io.Server {
 		this.users.logoutUser(authUser);
 	}
 
+	handleDisconnect(authUser) {}
+
 	/**
 	 * Evenement de connexion a un lobby
 	 * TODO a tester
@@ -186,8 +179,6 @@ class Server extends io.Server {
 		let lobby = this.lobbys.checkUserAccess(id, authUser, token);
 		lobby.disconnect(authUser); // Déconnection d'un utilisateur
 	}
-
-	handleDisconnect(authUser) {}
 
 	// EVENEMENT DE MESSAGES ================================================
 	/**
@@ -247,44 +238,6 @@ class Server extends io.Server {
 			token
 		);
 		messageObject.typing(authUser);
-	}
-
-	//EVENEMENT DE GAME ======================================================
-	/**
-	 *
-	 * @param {User} authUser
-	 * @param {Object} data donnée de la requete
-	 * @param {Object} data.lobbyId type d'action de jeu
-	 */
-	handleCreateGame(authUser, data) {
-		let lobby = this.lobbys.checkUserAccess(data.lobbyId, authUser, data.token);
-		this.games.createGame(lobby, authUser, data);
-	}
-	handleUpdateGame(authUser, data) {
-		let lobby = this.lobbys.checkUserAccess(data.lobbyId, authUser, data.token);
-		let game = this.games.get(data.gameId); ///faire une équibalent pour le sjeux
-
-		if (!game.userIsPresent(authUser))
-			throw new Error("L'utilisateur n'est pas présent dans le Jeu", authUser);
-
-		this.games.updateGame(game, lobby, data);
-	}
-	handleActionGame(authUser, data) {
-		//
-		let lobby = this.lobbys.checkUserAccess(data.lobbyId, authUser, data.token);
-	}
-
-	/**
-	 * Verifie si un utilisateur est présent dans une game. Si non, renvoie une erreur
-	 * @param {User} authUser Utilisateur authentifié
-	 * @param {String} gameId ID de la game
-	 * @returns {Boolean | Error}
-	 */
-	checkUserInGame(authUser, gameId) {
-		let game = this.games.get(data.gameId);
-		if (!game.userIsPresent(authUser))
-			throw new Error("L'utilisateur n'est pas présent dans le Jeu", authUser);
-		return true;
 	}
 
 	//EVENEMENT DE DATA ======================================================
