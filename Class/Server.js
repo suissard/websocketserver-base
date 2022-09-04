@@ -76,7 +76,10 @@ class Server extends io.Server {
 
 			for (let listener in handlers) {
 				let handler = handlers[listener];
-				socket.on(listener, handler.bind(this, this.users.findUserWithSocket(socket), socket) );
+				socket.on(listener, (data)=>{
+					let authUser = this.users.findUserWithSocket(socket);
+					handler.bind(this)(authUser, socket, data)
+				} );
 			}
 		});
 	}

@@ -33,8 +33,6 @@ class UsersManager extends ObjectsManager {
 	findUserWithSocket(socket) {
 		for (let [id, user] of this) 
 			if (user.socket.id == socket.id) return user
-				
-		
 		return false
 	}
 

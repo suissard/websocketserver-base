@@ -75,3 +75,33 @@ test("Server : new listerner", async () => {
 	wait();
 	expect(userServerSide.ghug).toBe();
 });
+
+
+test("Server : new listener", async () => {
+	var listener1Data = false;
+	var listener1User = false;
+	var listener1Socket = false;
+	const data1 = "data1";
+
+	const handlers = {
+		listener1: function (authUser, socket, data) {
+			listener1User = authUser;
+			listener1Socket = socket;
+			listener1Data = data;
+		},
+	};
+
+	const serverData = await getServerData(handlers);
+	server = serverData.server;
+	userClientSide = serverData.userClientSide;
+	userServerSide = serverData.userServerSide;
+
+	userClientSide.emit("listener1", data1);
+
+	await wait();
+
+	expect(listener1User).toBe(userServerSide);
+	expect(listener1Socket.id).toBe(userClientSide.socket.id);
+	expect(listener1Socket).toBe(userServerSide.socket);
+	expect(listener1Data).toBe(data1);
+});

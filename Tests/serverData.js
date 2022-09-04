@@ -4,7 +4,6 @@ import User from "../Class/User.js";
 
 const Server = require("../Class/Server");
 const WebSocketClient = require("./WebSocketClient.js");
-const MQTT = require("mqtt");
 
 /**
  *
@@ -35,28 +34,15 @@ const createManager = function (
 		`Création d'un manager de ${manager.size} ${manager.getConstructor().name}`
 	);
 
-	if( !manager || !adminUser || !ownerUser || !partialUser || !publicUser || !token) throw new Error("Manager a bugué")
+	if (!manager || !adminUser || !ownerUser || !partialUser || !publicUser || !token)
+		throw new Error("Manager a bugué");
 
 	return { manager, adminUser, ownerUser, partialUser, publicUser, token };
 };
 
 const getServerData = async function (handlers) {
-	const username = "admin",
-		password = "admin",
-		url = "mqtt://192.168.1.38:1883",
-		clientId = "mqtt123456789",
-		WebSocketPort = Math.ceil(Math.random() * 10000),
+	const WebSocketPort = Math.ceil(Math.random() * 10000),
 		WSoptions = { cors: { origin: "*" } };
-
-	//lancement de la liaison avec MQTT
-	const client = MQTT.connect(url, {
-		clientId,
-		username,
-		password,
-		clean: true,
-		connectTimeout: 4000,
-		reconnectPeriod: 1000,
-	});
 
 	const server = new Server(WebSocketPort, WSoptions, handlers);
 	const userClientSide = new WebSocketClient(undefined, WebSocketPort);
@@ -65,9 +51,17 @@ const getServerData = async function (handlers) {
 	await userClientSide.connectSocket();
 	userClientSide.socket.emit("Login", { username: usernameServerSide });
 	await wait(400);
+	userClientSide.id = userClientSide.lastData.id;
 	const userServerSide = server.users.get(userClientSide.lastData.id);
 
-	if( !server || !userClientSide || !userServerSide ) throw new Error("ServerData a bugué")
+	if (
+		(!server ||
+			!userClientSide ||
+			!userServerSide ||
+			userClientSide.id !== userServerSide.getId() ||
+			userClientSide.socket.id !== userServerSide.socket.id)
+	)
+		throw new Error("ServerData a bugué");
 
 	return { server, userClientSide, userServerSide };
 };
