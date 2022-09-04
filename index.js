@@ -1,7 +1,4 @@
 const Server = require("./Class/Server");
-const launchWebApp = require("./index.js");
-
-exports.launchWebApp = launchWebApp;
 exports.Lobby = require("./Class/Lobby");
 exports.LobbysManager = require("./Class/LobbysManager");
 exports.ManageableObject = require("./Class/ManageableObject");
@@ -19,23 +16,4 @@ exports.launchApp = function (
 	return new Server(WebSocketPort, WSoptions);
 };
 
-/**
- * Launch Vue web Application based on dist file
- * @param {*} port
- */
-exports.launchWebApp = function (port = 80) {
-	const express = require("express");
-	const app = express();
-	app.use(express.static(__dirname + "/WebSite"));
-
-	app.all("*", (req, res) => {
-		res.sendFile(__dirname + "/WebSite/index.html");
-		app.use("/static", express.static("static"));
-	});
-
-	app.listen(port, () => {
-		console.log("🌐 ServerWeb en ligne au port " + port);
-	});
-	return app;
-};
 exports.Server = Server;
