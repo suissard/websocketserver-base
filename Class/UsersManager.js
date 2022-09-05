@@ -31,9 +31,8 @@ class UsersManager extends ObjectsManager {
 	 * @returns {User}
 	 */
 	findUserWithSocket(socket) {
-		for (let [id, user] of this) 
-			if (user.socket.id == socket.id) return user
-		return false
+		for (let [id, user] of this) if (user.socket.id == socket.id) return user;
+		return false;
 	}
 
 	/**
@@ -124,7 +123,7 @@ class UsersManager extends ObjectsManager {
 	 * @param {Object} data
 	 */
 	emitToAll(eventType, data) {
-		for (let [id, user] of this) user.emit(eventType, data); // Envoyer a tout les utilisateurs
+		for (let [id, user] of this) if (user.isConnect()) user.emit(eventType, data); // Envoyer a tout les utilisateurs
 	}
 
 	/**

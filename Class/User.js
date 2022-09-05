@@ -129,13 +129,25 @@ class User extends ManageableObject {
 	}
 
 	/**
-	 * TODO Verifie si l'utilisateur partage un lobby commun avec une autre utilisateur
+	 * Verifie si l'utilisateur partage un lobby commun avec une autre utilisateur
 	 * @param {User} user
-	 * @returns {Boolean}
+	 * @returns {Lobby}
 	 */
 	shareLobby(user) {
+		for (let [id, lobby] of this.lobbys){
+			if (lobby.userIsPresent(user)) return lobby
+		}
 		return false;
 	}
+
+	/**
+	 * Verifie si l'utilisateur est connecté
+	 * @returns {Boolean}
+	 */
+	isConnect(){
+		return this.socket?.connected
+	}
+
 
 	getPrivateInfo() {
 		let info = super.getPrivateInfo();

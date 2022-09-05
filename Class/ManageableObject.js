@@ -344,7 +344,7 @@ class ManageableObject {
 	 * @returns {Boolean}
 	 */
 	userIsPresent(user) {
-		return this.getUsers().find((x) => x.getId() == user?.getId()) ? true : false;
+		return this.getUsers().find((x) => x.getId() === user?.getId()) ? true : false;
 	}
 
 	/**
@@ -367,7 +367,7 @@ class ManageableObject {
 	//EVENEMENTS ET NOTIFICATIONS
 
 	/**
-	 * Envoyer un evenement a tout les utilisateurs du lobby
+	 * Envoyer un evenement a tout les utilisateurs connectés du lobby
 	 * @param {String} eventType Type d'evenement
 	 * @param {Object} data
 	 */
@@ -375,8 +375,8 @@ class ManageableObject {
 		const users = this.getUsers();
 		for (let id in users) {
 			let user = users[id];
-			user.emit(eventType, data);
-		} // Envoyer a tout les utilisateurs
+			if (user.isConnect()) user.emit(eventType, data);
+		}
 	}
 
 	/**

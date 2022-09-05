@@ -40,6 +40,12 @@ class Server extends io.Server {
 		this.setListeners(this.nativeListeners, handlers);
 	}
 
+	/**
+	 * Parametrer les listeners natifs et leur handlers associés et les listeners/handlers secondaires
+	 * @param {io.Socket} socket socket emettant l'event
+	 * @param {String} listener nom de l'evenement
+	 * @param {Function} handler 
+	 */
 	setListeners(nativeListeners, handlers = {}) {
 		console.log("🖥 WebsocketServer start");
 		this.on("connection", (socket) => {
@@ -47,39 +53,38 @@ class Server extends io.Server {
 
 			for (let i in nativeListeners) {
 				let listener = this.nativeListeners[i];
-				try {
-					if (!this[`handle${listener}`] || handlers[listener]) continue;
-					socket.on(listener, (data) => {
-						let authUser = this.users.findUserWithSocket(socket);
-						if (!authUser && !["Login", "connexion"].includes(listener))
-							throw new Error("Need authentication");
+				if (!this[`handle${listener}`] || handlers[listener]) continue;
 
-						try {
-							console.log(
-								`📥 ${listener} from ${socket.id}--${socket.request.connection.remoteAddress}`,
-								data
-							);
-							this[`handle${listener}`](authUser, data, socket);
-						} catch (error) {
-							console.error(
-								`ERROR ${listener} from ${socket.request.connection.remoteAddress}`,
-								data,
-								error
-							);
-							// authUser.error(error.message);
-						}
-					});
-				} catch (error) {
-					console.error(listener, error);
-				}
+				this.setListener(socket, listener, this[`handle${listener}`]);
 			} // Differents évenements a écouter
 
 			for (let listener in handlers) {
 				let handler = handlers[listener];
-				socket.on(listener, (data)=>{
-					let authUser = this.users.findUserWithSocket(socket);
-					handler.bind(this)(authUser, socket, data)
-				} );
+				this.setListener(socket, listener, handler);
+			}
+		});
+	}
+
+	/**
+	 * Parametrer un listener et sont handler associé
+	 * @param {io.Socket} socket socket emettant l'event
+	 * @param {String} listener nom de l'evenement
+	 * @param {Function} handler 
+	 */
+	setListener(socket, listener, handler) {
+		socket.on(listener, (data) => {
+			try {
+				let authUser = this.users.findUserWithSocket(socket);
+				if (!authUser && !["Login", "connexion"].includes(listener))
+					throw new Error("Need authentication");
+
+				handler.bind(this, authUser, socket, data)();
+			} catch (error) {
+				console.error(
+					`ERROR ${listener} from ${socket.request.connection.remoteAddress}`,
+					data,
+					error
+				);
 			}
 		});
 	}
@@ -99,7 +104,7 @@ class Server extends io.Server {
 	 * @param {Socket} socket
 	 * @param {Object} data
 	 */
-	handleLogin(authUser, data, socket) {
+	handleLogin(authUser, socket, data) {
 		let user = this.users.loginUser(socket, data);
 		user.emit("Login", this.users.getInfo(user.getId(), user));
 
@@ -112,7 +117,7 @@ class Server extends io.Server {
 	 * @param {Socket} socket
 	 * @param {Object} data
 	 */
-	handleUpdateUser(authUser, data, socket) {
+	handleUpdateUser(authUser, socket, data) {
 		let { username, token } = data;
 		//verifie si existance d'un utilisateur relié a ce token
 		let user = this.users.checkUserAccess(authUser.getId(), authUser, token);
@@ -149,7 +154,7 @@ class Server extends io.Server {
 	 * @param {Socket} socket
 	 * @param {Object} data
 	 */
-	handleConnectLobby(authUser, data) {
+	handleConnectLobby(authUser, socket, data) {
 		let { id, token } = data;
 
 		if (id === undefined) throw new Error("Pas d'id de lobby fournit");
@@ -167,7 +172,7 @@ class Server extends io.Server {
 	 * @param {Socket} socket
 	 * @param {Object} data
 	 */
-	handleDisconnectLobby(authUser, data) {
+	handleDisconnectLobby(authUser, socket, data) {
 		console.log(authUser.username, data);
 		let { id, token } = data;
 		let lobby = this.lobbys.checkUserAccess(id, authUser, token);
@@ -180,7 +185,7 @@ class Server extends io.Server {
 	 * @param {Socket} socket
 	 * @param {Object} data
 	 */
-	handleSendMessage(authUser, data) {
+	handleSendMessage(authUser, socket, data) {
 		let { id, token, content } = data;
 		let lobby = this.lobbys.checkUserAccess(id, authUser, token);
 		return lobby.createMessage(content, authUser);
@@ -191,7 +196,7 @@ class Server extends io.Server {
 	 * @param {Socket} socket
 	 * @param {Object} data
 	 */
-	handleReceivedMessage(authUser, data) {
+	handleReceivedMessage(authUser, socket, data) {
 		let { lobby, message, token } = data;
 		const lobbyObject = this.lobbys.checkUserAccess(lobby.id, authUser, token);
 		const messageObject = lobbyObject.messages.checkUserAccess(
@@ -207,7 +212,7 @@ class Server extends io.Server {
 	 * @param {Socket} socket
 	 * @param {Object} data
 	 */
-	handleViewedMessage(authUser, data) {
+	handleViewedMessage(authUser, socket, data) {
 		let { lobby, message, token } = data;
 		const lobbyObject = this.lobbys.checkUserAccess(lobby.id, authUser, token);
 		const messageObject = lobbyObject.messages.checkUserAccess(
@@ -223,7 +228,7 @@ class Server extends io.Server {
 	 * @param {Socket} socket
 	 * @param {Object} data
 	 */
-	handleTypingMessage(authUser, data) {
+	handleTypingMessage(authUser, socket, data) {
 		let { lobby, message, token } = data;
 		const lobbyObject = this.lobbys.checkUserAccess(lobby.id, authUser, token);
 		const messageObject = lobbyObject.messages.checkUserAccess(
@@ -235,7 +240,7 @@ class Server extends io.Server {
 	}
 
 	//EVENEMENT DE DATA ======================================================
-	handleData(authUser, data) {
+	handleData(authUser, socket, data) {
 		let result = this;
 
 		let path = data.split("/");
@@ -249,18 +254,18 @@ class Server extends io.Server {
 		authUser.emit("Data", { type: data, data: result });
 	}
 
-	handleGetAll(authUser, data) {
+	handleGetAll(authUser, socket, data) {
 		console.log("GetAll", data);
 		authUser.emit("GetAll", { type: data, data: JSON.stringify(this.Data) });
 	}
 
 	//EVENEMETN DE TOPIC ======================================================
-	handlePublishTopic(authUser, data) {
+	handlePublishTopic(authUser, socket, data) {
 		console.log("handlePublishTopic", data);
 		let { topic, value } = data;
 		this.client.publish(topic, value);
 	}
-	handleConnectedObjectAction(authUser, data) {
+	handleConnectedObjectAction(authUser, socket, data) {
 		console.log("handleConnectedObjectAction", data);
 		let { id, type, action, actionID, args } = data;
 		let connectedObject = this.client.ConnectedObjects[type].get(id);

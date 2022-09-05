@@ -80,3 +80,11 @@ test("User : Infos", async () => {
 		username: userServerSide.username,
 	});
 });
+
+
+test("User : connection state", async () => {
+	expect(userServerSide.isConnect()).toBeTruthy();
+	userClientSide.socket.disconnect()
+	await wait()
+	expect(userServerSide.isConnect()).toBeFalsy();
+});

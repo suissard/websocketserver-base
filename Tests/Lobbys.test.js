@@ -63,23 +63,29 @@ test("Lobbys : fonctions server vers lobbyManager", async () => {
 	lobby = server.lobbys.get(id);
 	lobby.setOwner(ownerUser);
 	expect(() => {
-		server.handleConnectLobby(publicUser, data);
+		server.handleConnectLobby(publicUser, publicUser.socket, data);
 	}).toThrowError(`User ${publicUser.username} don't have access to <Lobby ${id}>`);
 	expect(() => {
-		server.handleConnectLobby(partialUser, data);
+		server.handleConnectLobby(partialUser, partialUser.socket, data);
 	}).toThrowError(`User ${partialUser.username} don't have access to <Lobby ${id}>`);
 	lobby.connect(partialUser);
 
-	server.handleConnectLobby(ownerUser, data);
-	server.handleConnectLobby(adminUser, data);
-	server.handleConnectLobby(userServerSide, { ...data, token: lobby.getToken() });
-
-	server.handleConnectLobby(new User("user1", true, "ezrzer", { username: "user1" }), {
+	server.handleConnectLobby(ownerUser, ownerUser.socket, data);
+	server.handleConnectLobby(adminUser, adminUser.socket, data);
+	server.handleConnectLobby(userServerSide, userServerSide.socket, {
 		...data,
 		token: lobby.getToken(),
 	});
+
+	const user1 = new User("user1", true, "ezrzer", { username: "user1" });
+	server.handleConnectLobby(user1, user1.socket, {
+		...data,
+		token: lobby.getToken(),
+	});
+
+	const user2 = new User("user2", true, "ezrzer", { username: "user2" });
 	expect(() => {
-		server.handleConnectLobby(new User("user2", true, "ezrzer", { username: "user2" }), {
+		server.handleConnectLobby(user2, user2.socket, {
 			...data,
 			token: lobby.getToken(),
 		});
@@ -94,7 +100,7 @@ test("Lobbys : fonctions server vers lobbyManager", async () => {
 	expect(lobby.userIsPresent(userServerSide)).toBeTruthy();
 
 	// "DisconnectLobby",
-	server.handleDisconnectLobby(partialUser, data);
+	server.handleDisconnectLobby(partialUser, partialUser.socket, data);
 	await wait();
 	expect(userClientSide.lastEvent).toBe("DisconnectLobby");
 	expect(userClientSide.lastData.id).toBe(id);

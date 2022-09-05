@@ -47,33 +47,11 @@ test("Server : HandleUpdateUser", async () => {
 	const updatedUsername = "updatedUsername";
 	server.handleUpdateUser(
 		userServerSide,
-		{ username: updatedUsername, token: userServerSide.getToken() },
-		userClientSide.socket
+		userClientSide.socket,
+		{ username: updatedUsername, token: userServerSide.getToken() }
 	);
 	await wait();
 	expect(userServerSide.username).toBe(updatedUsername);
-});
-
-test("Server : new listerner", async () => {
-	const serverData = await getServerData();
-	server = serverData.server;
-	userClientSide = serverData.userClientSide;
-	userServerSide = serverData.userServerSide;
-	const handlers = {
-		listener1: (x) => {
-			console.log("listener1", x);
-		},
-		listener2: (x) => {
-			console.log("listener2", x);
-		},
-		listener3: (x) => {
-			console.log("listener3", x);
-		},
-	};
-	// server = new Server(5000, undefined, handlers);
-	userClientSide.emit("listener1", "test1");
-	wait();
-	expect(userServerSide.ghug).toBe();
 });
 
 
@@ -96,6 +74,7 @@ test("Server : new listener", async () => {
 	userClientSide = serverData.userClientSide;
 	userServerSide = serverData.userServerSide;
 
+	userClientSide.emit("Login", data1);
 	userClientSide.emit("listener1", data1);
 
 	await wait();
