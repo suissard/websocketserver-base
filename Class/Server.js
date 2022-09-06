@@ -13,24 +13,24 @@ const UsersManager = require("./UsersManager.js");
 class Server extends io.Server {
 	constructor(srv, options, handlers = {}) {
 		super(srv, options);
-		//TODO construire les event et leur function asscoccié, dans des fichier indépednant
-		this.nativeListeners = [
-			"Login",
-			"Logout",
-			"Disconnect",
-			"UpdateUser",
 
-			"ConnectLobby",
-			"DisconnectLobby",
+		this.nativeListeners = {
+			Login: this.handleLogin,
+			Logout: this.handleLogout,
+			Disconnect: this.handleDisconnect,
 
-			"SendMessage",
-			"ReceivedMessage",
-			"ViewedMessage",
-			"TypingMessage",
+			ConnectLobby: this.handleConnectLobby,
+			DisconnectLobby: this.handleDisconnectLobby,
 
-			"Data",
-			"GetAll",
-		];
+			SendMessage: this.handleSendMessage,
+			ReceivedMessage: this.handleReceivedMessage,
+			ViewedMessage: this.handleViewedMessage,
+			TypingMessage: this.handleTypingMessage,
+
+			Data: this.handleData,
+			GetAll: this.handleGetAll,
+			UpdateUser: this.handleUpdateUser,
+		};
 
 		this.handlers = handlers;
 
@@ -44,20 +44,20 @@ class Server extends io.Server {
 	 * Parametrer les listeners natifs et leur handlers associés et les listeners/handlers secondaires
 	 * @param {io.Socket} socket socket emettant l'event
 	 * @param {String} listener nom de l'evenement
-	 * @param {Function} handler 
+	 * @param {Function} handler
 	 */
 	setListeners(nativeListeners, handlers = {}) {
 		console.log("🖥 WebsocketServer start");
 		this.on("connection", (socket) => {
 			this.handleConnection(socket);
 
-			for (let i in nativeListeners) {
-				let listener = this.nativeListeners[i];
-				if (!this[`handle${listener}`] || handlers[listener]) continue;
+			//Event natif
+			for (let listener in nativeListeners) {
+				let handler = this.nativeListeners[listener];
+				this.setListener(socket, listener, handler);
+			}
 
-				this.setListener(socket, listener, this[`handle${listener}`]);
-			} // Differents évenements a écouter
-
+			//Event externe
 			for (let listener in handlers) {
 				let handler = handlers[listener];
 				this.setListener(socket, listener, handler);
@@ -69,7 +69,7 @@ class Server extends io.Server {
 	 * Parametrer un listener et sont handler associé
 	 * @param {io.Socket} socket socket emettant l'event
 	 * @param {String} listener nom de l'evenement
-	 * @param {Function} handler 
+	 * @param {Function} handler
 	 */
 	setListener(socket, listener, handler) {
 		socket.on(listener, (data) => {
