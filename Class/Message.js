@@ -63,9 +63,9 @@ class Message extends ManageableObject {
 		this.lobby.send(content, user);
 	}
 
-	getPartialEntrie() {
+	getPartialProperty() {
 		return super
-			.getPartialEntrie()
+			.getPartialProperty()
 			.concat(["content", "lobby", "replied", "distributed", "received", "viewed"]);
 	}
 	getPartialInfo() {

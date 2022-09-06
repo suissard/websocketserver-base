@@ -50,6 +50,7 @@ class ManageableObject {
 			owner: this.getOwner().getUserInfo(),
 			token: this.getToken(),
 			visibility: this.getVisibility(),
+			type: this.constructor.name.toLowerCase() + "s",
 			users: this.getUsers().map((x) => x.getUserInfo()),
 			data,
 		};
@@ -58,7 +59,7 @@ class ManageableObject {
 	 * Récupérer les entrée pour livrer des infos partielles. Necessite d'etre un utilisateur lié a l'objet (this.userIsPresent())
 	 * @returns {Array}
 	 */
-	getPartialEntrie() {
+	getPartialProperty() {
 		return ["createdAt", "updatedAt"];
 	}
 	/**
@@ -67,9 +68,9 @@ class ManageableObject {
 	 */
 	getPartialInfo() {
 		var data = {};
-		const partialEntrie = this.getPartialEntrie();
-		for (let i in partialEntrie) {
-			let entrie = partialEntrie[i];
+		const partialProperty = this.getPartialProperty();
+		for (let i in partialProperty) {
+			let entrie = partialProperty[i];
 			data[entrie] = this[entrie];
 		}
 
@@ -77,6 +78,7 @@ class ManageableObject {
 			id: this.getId(),
 			owner: this.getOwner().getUserInfo(),
 			visibility: this.getVisibility(),
+			type: this.constructor.name.toLowerCase() + "s",
 			users: this.getUsers().map((x) => x.getUserInfo()),
 			data,
 		};
@@ -86,7 +88,7 @@ class ManageableObject {
 	 * Récupérer les entrée pour livrer des infos partielles
 	 * @returns {Array}
 	 */
-	getPublicEntrie() {
+	getPublicProperty() {
 		return [];
 	}
 	/**
@@ -95,9 +97,9 @@ class ManageableObject {
 	 */
 	getPublicInfo() {
 		var data = {};
-		const publicEntrie = this.getPublicEntrie();
-		for (let i in publicEntrie) {
-			let entrie = publicEntrie[i];
+		const publicProperty = this.getPublicProperty();
+		for (let i in publicProperty) {
+			let entrie = publicProperty[i];
 			data[entrie] = this[entrie];
 		}
 
@@ -105,12 +107,21 @@ class ManageableObject {
 			id: this.getId(),
 			owner: this.getOwner().getUserInfo(),
 			visibility: this.getVisibility(),
+			type: this.constructor.name.toLowerCase() + "s",
 			users: this.getUsers().map((x) => {
 				return { id: "XXXX", username: "XXXX" };
 			}),
 			data,
 		};
 		return data;
+	}
+
+	/**
+	 * Renvoie toute els propriétés qui peuvent etre update
+	 * @returns {Array}
+	 */
+	getUpdatableProperty() {
+		return [];
 	}
 
 	/**
@@ -121,18 +132,7 @@ class ManageableObject {
 	update(data) {
 		this.beforeUpdated(data);
 		for (let i in data) {
-			if (
-				[
-					"getId",
-					"getOwner",
-					"getToken",
-					"getVisibility",
-					"setId",
-					"setOwner",
-					"setToken",
-					"setVisibility",
-				].includes(i)
-			)
+			if (!this.getUpdatableProperty().includes(i))
 				throw new Error(`"${i}" is reserved in ${this.constructor.name}`);
 			if (this[i] !== data[i]) this[i] = data[i];
 		}
@@ -140,6 +140,14 @@ class ManageableObject {
 
 		this.updated(data);
 		return this;
+	}
+
+	setProperty(propertyName, value) {
+		Object.defineProperty(this, propertyName, {
+			enumerable: false,
+			configurable: true,
+			value: () => value,
+		});
 	}
 
 	/**
@@ -154,11 +162,7 @@ class ManageableObject {
 	 * @param {Number} id
 	 */
 	setId(id) {
-		Object.defineProperty(this, "getId", {
-			enumerable: false,
-			configurable: true,
-			value: () => id,
-		});
+		return this.setProperty("getId", id);
 	}
 
 	/**
@@ -173,11 +177,7 @@ class ManageableObject {
 	 * @param {User} owner
 	 */
 	setOwner(owner) {
-		Object.defineProperty(this, "getOwner", {
-			enumerable: false,
-			configurable: true,
-			value: () => owner,
-		});
+		return this.setProperty("getOwner", owner);
 	}
 
 	/**
@@ -192,11 +192,7 @@ class ManageableObject {
 	 * @param {Boolean} token
 	 */
 	setToken(token) {
-		Object.defineProperty(this, "getToken", {
-			enumerable: false,
-			configurable: true,
-			value: () => token,
-		});
+		return this.setProperty("getToken", token);
 	}
 
 	/**
@@ -211,11 +207,7 @@ class ManageableObject {
 	 * @param {Boolean} visibility
 	 */
 	setVisibility(visibility) {
-		Object.defineProperty(this, "getVisibility", {
-			enumerable: false,
-			configurable: true,
-			value: () => visibility,
-		});
+		return this.setProperty("getVisibility", visibility);
 	}
 
 	/**
@@ -230,13 +222,7 @@ class ManageableObject {
 	 * @param {Array} users
 	 */
 	setUsers(users = []) {
-		Object.defineProperty(this, "getUsers", {
-			enumerable: false,
-			configurable: true,
-			value: () => {
-				return users;
-			},
-		});
+		return this.setProperty("getUsers", users);
 	}
 
 	/**

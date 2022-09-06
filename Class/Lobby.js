@@ -48,8 +48,8 @@ class Lobby extends ManageableObject {
 		return this.messages;
 	}
 
-	getPartialEntrie() {
-		return super.getPartialEntrie().concat(["description", "sizeLimit"]);
+	getPartialProperty() {
+		return super.getPartialProperty().concat(["description", "sizeLimit"]);
 	}
 	/**
 	 * Connecter un user au lobby si il reste de la place est que le token d'entrée est correct

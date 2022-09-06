@@ -29,11 +29,11 @@ class GamesManager extends Map {
 	updateGame(game, lobby, data) {
 		let modifications = {};
 		for (let i in game) {
-			let newEntrie = data[i],
-				actualEntrie = game[i];
-			if (newEntrie === undefined || newEntrie === actualEntrie) continue;
-			game[i] = newEntrie;
-			modifications[i] = newEntrie;
+			let newProperty = data[i],
+				actualProperty = game[i];
+			if (newProperty === undefined || newProperty === actualProperty) continue;
+			game[i] = newProperty;
+			modifications[i] = newProperty;
 		}
 		if (modifications.length) lobby.emitToAll("UpdateGame", modifications);
 		return game;

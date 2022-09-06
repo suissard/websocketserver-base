@@ -38,6 +38,12 @@ class User extends ManageableObject {
 		return result;
 	}
 
+	getUpdatableProperty(){
+		return super.getUpdatableProperty().concat([
+			'username'
+		])
+	}
+
 	// FONCTIONS DE NOTIFICATION ==========================================================================================
 	/**
 	 * Emet un evenement de notification a l'utilisateur client
@@ -154,10 +160,10 @@ class User extends ManageableObject {
 		delete info.data.socket;
 		return info;
 	}
-	getPartialEntrie() {
-		return ["username"].concat(super.getPartialEntrie());
+	getPartialProperty() {
+		return ["username"].concat(super.getPartialProperty());
 	}
-	getPublicEntrie() {
+	getPublicProperty() {
 		return ["username"];
 	}
 	/**

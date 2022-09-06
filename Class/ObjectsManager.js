@@ -15,7 +15,7 @@ class ObjectsManager extends Map {
 		this.setConstructor(constructor);
 
 		this.adminsId = adminsId;
-
+		this.actionsByRight
 		this.setActionsByRights(actionsByRight);
 	}
 	/**
@@ -51,16 +51,30 @@ class ObjectsManager extends Map {
 	}
 	setActionsByRights(
 		actions = {
-			owner: ["addUser", "addUsers", "deleteUser", "deleteUsers"],
-			token: ["addUser", "addUsers", "deleteUser", "deleteUsers"],
+			owner: [
+				"setId",
+				"setOwner",
+				"setToken",
+				"setVisibility",
+				"addUser",
+				"addUsers",
+				"deleteUser",
+				"deleteUsers",
+				"update",
+			],
+			token: [
+				"setVisibility",
+				"addUser",
+				"addUsers",
+				"deleteUser",
+				"deleteUsers",
+				"update",
+			],
 			users: ["addUser", "addUsers"],
 		}
 	) {
-		Object.defineProperty(this, "getActionsByRights", {
-			enumerable: false,
-			configurable: true,
-			value: () => actions,
-		});
+		this.actionsByRight = actions
+		
 	}
 	/**
 	 * Générer un token d'authentication
@@ -167,16 +181,15 @@ class ObjectsManager extends Map {
 		const object = this.checkUserAccess(id, user, token);
 		if (!object) return [];
 
-		const actionsByRight = this.getActionsByRights();
 		let result = [];
 
 		const pushIfUnique = (vals) => {
 			for (let i in vals) if (!result.includes(vals[i])) result.push(vals[i]);
 		};
 
-		if (object.userIsOwner(user)) pushIfUnique(actionsByRight.owner);
-		if (object.tokenGrantAccess(token)) pushIfUnique(actionsByRight.token);
-		if (object.userIsPresent(user)) pushIfUnique(actionsByRight.users);
+		if (object.userIsOwner(user)) pushIfUnique(this.actionsByRight.owner);
+		if (object.tokenGrantAccess(token)) pushIfUnique(this.actionsByRight.token);
+		if (object.userIsPresent(user)) pushIfUnique(this.actionsByRight.users);
 		return result;
 	}
 
@@ -191,7 +204,11 @@ class ObjectsManager extends Map {
 		const object = this.get(id);
 		if (!object) throw new Error(`${this.getConstructor().name} ${id} don't exist`);
 		var data;
-		if (object.userIsOwner(user) || object.tokenGrantAccess(token) || this.userIsAdmin(user))
+		if (
+			object.userIsOwner(user) ||
+			object.tokenGrantAccess(token) ||
+			this.userIsAdmin(user)
+		)
 			data = object.getPrivateInfo();
 		else if (object.userIsPresent(user)) data = object.getPartialInfo();
 		else if (object.getVisibility()) data = object.getPublicInfo();
@@ -199,16 +216,15 @@ class ObjectsManager extends Map {
 		return JSON.stringify(data);
 	}
 
-	
-	getInfos(user, token){
-		let result = []
-		let data = this.findAll(undefined, user, token)
-		for (let [id, obj] of this){
-			let info = this.getInfo(id, user, token)
-			
-			if(info) result .push(info)
+	getInfos(user, token) {
+		let result = [];
+		let data = this.findAll(undefined, user, token);
+		for (let [id, obj] of this) {
+			let info = this.getInfo(id, user, token);
+
+			if (info) result.push(info);
 		}
-		return result
+		return result;
 	}
 	/**
 	 * Verifier l'accessibilité d'un object : utilisateur admin, object visible a tous, utilisateur est proprietaire, token correct. Renvoie erreur si incorrect
@@ -268,7 +284,6 @@ class ObjectsManager extends Map {
 		}
 		return result.length ? result : false;
 	}
-
 }
 
 module.exports = ObjectsManager;

@@ -43,11 +43,11 @@ class UsersManager extends ObjectsManager {
 	updateUser(user, data) {
 		let modifications = [];
 		for (let i in user) {
-			let newEntrie = data[i],
-				actualEntrie = user[i];
-			if (newEntrie === undefined || newEntrie === actualEntrie) continue;
+			let newProperty = data[i],
+				actualProperty = user[i];
+			if (newProperty === undefined || newProperty === actualProperty) continue;
 
-			user[i] = newEntrie;
+			user[i] = newProperty;
 			modifications.push(i);
 		}
 		if (modifications.length) {

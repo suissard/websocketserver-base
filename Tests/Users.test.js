@@ -27,6 +27,10 @@ test("User : Basics", async () => {
 	];
 
 	expect(userServerSide.setLobbys(lobbys).size).toBe(3);
+
+	const reservedProperty = 'socket'
+	expect(()=>userServerSide.update({[reservedProperty]:"wrongValue"})).toThrowError(`"${reservedProperty}" is reserved in ${userServerSide.constructor.name}`)
+
 });
 
 test("User : Infos", async () => {
@@ -46,6 +50,7 @@ test("User : Infos", async () => {
 		owner: { id: userServerSide.getId(), username: userServerSide.username },
 		token: userServerSide.getToken(),
 		visibility: userServerSide.getVisibility(),
+		type: userServerSide.constructor.name.toLowerCase() + "s",
 		users: [],
 		data: {
 			createdAt: userServerSide.createdAt,
@@ -59,6 +64,7 @@ test("User : Infos", async () => {
 		id: userServerSide.getId(),
 		owner: { id: userServerSide.getId(), username: userServerSide.username },
 		visibility: userServerSide.getVisibility(),
+		type: userServerSide.constructor.name.toLowerCase() + "s",
 		users: [],
 		data: {
 			username: userServerSide.username,
@@ -71,6 +77,7 @@ test("User : Infos", async () => {
 		id: userServerSide.getId(),
 		owner: { id: userServerSide.getId(), username: userServerSide.username },
 		visibility: userServerSide.getVisibility(),
+		type: userServerSide.constructor.name.toLowerCase() + "s",
 		users: [],
 		data: { username: userServerSide.username },
 	});
