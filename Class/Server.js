@@ -29,6 +29,7 @@ class Server extends io.Server {
 
 			get_data: this.handleGetData,
 			get_all_data: this.handleGetAllData,
+			
 			UpdateUser: this.handleUpdateUser, //TODO transformer en updateDAta
 		};
 
