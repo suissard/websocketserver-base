@@ -15,21 +15,21 @@ class Server extends io.Server {
 		super(srv, options);
 
 		this.nativeListeners = {
-			Login: this.handleLogin,
-			Logout: this.handleLogout,
-			Disconnect: this.handleDisconnect,
+			login: this.handleLogin,
+			logout: this.handleLogout,
+			disconnect: this.handleDisconnect,
 
-			ConnectLobby: this.handleConnectLobby,
-			DisconnectLobby: this.handleDisconnectLobby,
+			connect_lobby: this.handleConnectLobby,
+			disconnect_lobby: this.handleDisconnectLobby,
 
-			SendMessage: this.handleSendMessage,
-			ReceivedMessage: this.handleReceivedMessage,
-			ViewedMessage: this.handleViewedMessage,
-			TypingMessage: this.handleTypingMessage,
+			send_message: this.handleSendMessage,
+			received_message: this.handleReceivedMessage,
+			viewed_message: this.handleViewedMessage,
+			typing_message: this.handleTypingMessage,
 
-			Data: this.handleData,
-			GetAll: this.handleGetAll,
-			UpdateUser: this.handleUpdateUser,
+			get_data: this.handleGetData,
+			get_all_data: this.handleGetAllData,
+			UpdateUser: this.handleUpdateUser, //TODO transformer en updateDAta
 		};
 
 		this.handlers = handlers;
@@ -75,7 +75,7 @@ class Server extends io.Server {
 		socket.on(listener, (data) => {
 			try {
 				let authUser = this.users.findUserWithSocket(socket);
-				if (!authUser && !["Login", "connexion"].includes(listener))
+				if (!authUser && !["login", "connexion"].includes(listener))
 					throw new Error("Need authentication");
 
 				handler.bind(this, authUser, socket, data)();
@@ -106,7 +106,7 @@ class Server extends io.Server {
 	 */
 	handleLogin(authUser, socket, data) {
 		let user = this.users.loginUser(socket, data);
-		user.emit("Login", this.users.getInfo(user.getId(), user));
+		user.emit("login", this.users.getInfo(user.getId(), user));
 
 		// TODO Envoyer toutes les informations
 		// for (let i in allData) user.emit("dataUpdate", allData[i]);
@@ -163,7 +163,7 @@ class Server extends io.Server {
 		if (!lobby) lobby = this.lobbys.create(authUser, data, token, undefined, id);
 
 		this.lobbys.connect(id, authUser, token); // Connection d'un utilisateur
-		authUser.emit("ConnectLobby", this.lobbys.getInfo(lobby.getId(), authUser));
+		authUser.emit("connect_lobby", this.lobbys.getInfo(lobby.getId(), authUser));
 	}
 
 	/**
@@ -240,7 +240,7 @@ class Server extends io.Server {
 	}
 
 	//EVENEMENT DE DATA ======================================================
-	handleData(authUser, socket, data) {
+	handleGetData(authUser, socket, data) {
 		let result = this;
 
 		let path = data.split("/");
@@ -251,12 +251,12 @@ class Server extends io.Server {
 		}
 		result = result.getInfos(authUser);
 
-		authUser.emit("Data", { type: data, data: result });
+		authUser.emit("get_data", { type: data, data: result });
 	}
 
-	handleGetAll(authUser, socket, data) {
-		console.log("GetAll", data);
-		authUser.emit("GetAll", { type: data, data: JSON.stringify(this.Data) });
+	handleGetAllData(authUser, socket, data) {
+		console.log("get_all_data", data);
+		authUser.emit("get_all_data", { type: data, data: JSON.stringify(this.Data) });
 	}
 
 	//EVENEMETN DE TOPIC ======================================================

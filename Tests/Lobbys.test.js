@@ -59,7 +59,7 @@ test("Lobbys : Creer lobbyManager et lobby", async () => {
 });
 
 test("Lobbys : fonctions server vers lobbyManager", async () => {
-	// "ConnectLobby"
+	// "connect_lobby"
 	lobby = server.lobbys.get(id);
 	lobby.setOwner(ownerUser);
 	expect(() => {
@@ -92,17 +92,17 @@ test("Lobbys : fonctions server vers lobbyManager", async () => {
 	}).toThrowError(`Lobby ${id} is full`);
 
 	await wait();
-	expect(userClientSide.lastEvent).toBe("ConnectLobby");
+	expect(userClientSide.lastEvent).toBe("connect_lobby");
 	expect(userClientSide.lastData.id).toBe(id);
 	expect(lobby.userIsPresent(partialUser)).toBeTruthy();
 	expect(lobby.userIsPresent(ownerUser)).toBeTruthy();
 	expect(lobby.userIsPresent(adminUser)).toBeTruthy();
 	expect(lobby.userIsPresent(userServerSide)).toBeTruthy();
 
-	// "DisconnectLobby",
+	// "disconnect_lobby",
 	server.handleDisconnectLobby(partialUser, partialUser.socket, data);
 	await wait();
-	expect(userClientSide.lastEvent).toBe("DisconnectLobby");
+	expect(userClientSide.lastEvent).toBe("disconnect_lobby");
 	expect(userClientSide.lastData.id).toBe(id);
 	expect(ownerUser.lobbys.has(id)).toBeTruthy();
 	expect(partialUser.lobbys.has(id)).toBeFalsy();

@@ -75,7 +75,7 @@ class UsersManager extends ObjectsManager {
 			}
 
 		user.socket = socket;
-		user.emit("Login", user.getPrivateInfo());
+		user.emit("login", user.getPrivateInfo());
 		user.success("Reconnection reussi " + user.username);
 		return user;
 	}
@@ -132,7 +132,7 @@ class UsersManager extends ObjectsManager {
 	 * @param {Object} data
 	 */
 	sendToAll(data) {
-		this.emitToAll("SendMessage", data);
+		this.emitToAll("send_message", data);
 	}
 
 	// FONCTIONS DE NOTIFICATION ==========================================================================================

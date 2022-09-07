@@ -39,7 +39,7 @@ class Message extends ManageableObject {
 
 	addReceived(user) {
 		if (!this.received.includes(user.getId())) this.received.push(user.getId());
-		this.lobby.emitToAll("ReceivedMessage", {
+		this.lobby.emitToAll("received_message", {
 			message: this.getPublicInfo(),
 			user: user.getPublicInfo(),
 		});
@@ -47,14 +47,14 @@ class Message extends ManageableObject {
 
 	addViewed(user) {
 		if (!this.viewed.includes(user.getId())) this.viewed.push(user.getId());
-		this.lobby.emitToAll("ViewedMessage", {
+		this.lobby.emitToAll("viewed_message", {
 			message: this.getPublicInfo(),
 			user: user.getPublicInfo(),
 		});
 	}
 
 	typing(user) {
-		this.lobby.emitToAll("TypingMessage", {
+		this.lobby.emitToAll("typing_message", {
 			message: this.getPublicInfo(),
 			user: user.getPublicInfo(),
 		});

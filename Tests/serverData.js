@@ -49,7 +49,7 @@ const getServerData = async function (handlers) {
 	const usernameServerSide = "testUser";
 
 	await userClientSide.connectSocket();
-	userClientSide.socket.emit("Login", { username: usernameServerSide });
+	userClientSide.socket.emit("login", { username: usernameServerSide });
 	await wait(400);
 	userClientSide.id = userClientSide.lastData.id;
 	const userServerSide = server.users.get(userClientSide.lastData.id);

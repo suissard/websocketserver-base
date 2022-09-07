@@ -108,7 +108,7 @@ class User extends ManageableObject {
 	 * @param {Object} data
 	 */
 	send(data) {
-		this.emit("SendMessage", data);
+		this.emit("send_message", data);
 	}
 
 	// /**
