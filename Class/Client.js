@@ -9,8 +9,6 @@ class WebSocketClient {
 		this.url = url;
 		this.cache
 
-
-
 		this.nativeListeners = {
 			login: this.handleLogin,
 			logout: this.handleLogout,

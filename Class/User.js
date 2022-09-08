@@ -38,10 +38,8 @@ class User extends ManageableObject {
 		return result;
 	}
 
-	getUpdatableProperty(){
-		return super.getUpdatableProperty().concat([
-			'username'
-		])
+	getUpdatableProperty() {
+		return super.getUpdatableProperty().concat(["username"]);
 	}
 
 	// FONCTIONS DE NOTIFICATION ==========================================================================================
@@ -140,8 +138,8 @@ class User extends ManageableObject {
 	 * @returns {Lobby}
 	 */
 	shareLobby(user) {
-		for (let [id, lobby] of this.lobbys){
-			if (lobby.userIsPresent(user)) return lobby
+		for (let [id, lobby] of this.lobbys) {
+			if (lobby.userIsPresent(user)) return lobby;
 		}
 		return false;
 	}
@@ -150,10 +148,9 @@ class User extends ManageableObject {
 	 * Verifie si l'utilisateur est connecté
 	 * @returns {Boolean}
 	 */
-	isConnect(){
-		return this.socket?.connected
+	isConnect() {
+		return this.socket?.connected;
 	}
-
 
 	getPrivateInfo() {
 		let info = super.getPrivateInfo();
@@ -166,12 +163,13 @@ class User extends ManageableObject {
 	getPublicProperty() {
 		return ["username"];
 	}
-	/**
-	 * Récupérer les infos publiques liée à l'utilisateur
-	 * @returns {Object}
-	 */
-	getUserInfo() {
-		return { id: this.getId(), username: this.username };
+	getPublicInfo() {
+		return {
+			id: this.getId(),
+			visibility: this.getVisibility(),
+			type: this.constructor.name.toLowerCase() + "s",
+			data: { username: this.username },
+		};
 	}
 }
 

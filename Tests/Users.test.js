@@ -47,7 +47,7 @@ test("User : Infos", async () => {
 
 	expect(userServerSide.getPrivateInfo()).toEqual({
 		id: userServerSide.getId(),
-		owner: { id: userServerSide.getId(), username: userServerSide.username },
+		owner: userServerSide.getOwner().getPublicInfo(),
 		token: userServerSide.getToken(),
 		visibility: userServerSide.getVisibility(),
 		type: userServerSide.constructor.name.toLowerCase() + "s",
@@ -62,7 +62,7 @@ test("User : Infos", async () => {
 
 	expect(userServerSide.getPartialInfo()).toEqual({
 		id: userServerSide.getId(),
-		owner: { id: userServerSide.getId(), username: userServerSide.username },
+		owner: userServerSide.getOwner().getPublicInfo(),
 		visibility: userServerSide.getVisibility(),
 		type: userServerSide.constructor.name.toLowerCase() + "s",
 		users: [],
@@ -74,17 +74,10 @@ test("User : Infos", async () => {
 	});
 
 	expect(userServerSide.getPublicInfo()).toEqual({
+		data: { username: userServerSide.username },
 		id: userServerSide.getId(),
-		owner: { id: userServerSide.getId(), username: userServerSide.username },
 		visibility: userServerSide.getVisibility(),
 		type: userServerSide.constructor.name.toLowerCase() + "s",
-		users: [],
-		data: { username: userServerSide.username },
-	});
-
-	expect(userServerSide.getUserInfo()).toEqual({
-		id: userServerSide.getId(),
-		username: userServerSide.username,
 	});
 });
 

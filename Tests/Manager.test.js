@@ -166,7 +166,7 @@ test("Manager : getInfo", async () => {
 	expect(infoFromPublic.id).toBe(object.getId());
 	expect(infoFromPublic.owner.id).toBe(object.getOwner().getId());
 	expect(infoFromPublic.visibility).toBe(object.getVisibility());
-	expect(infoFromPublic.users[0].id).toBe("XXXX");
+	expect(infoFromPublic.users[0].id).toBe(user3.getId());
 	expect(infoFromPublic.data.createdAt).toBe();
 	expect(infoFromPublic.data.test).toBe();
 

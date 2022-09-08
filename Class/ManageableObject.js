@@ -47,11 +47,11 @@ class ManageableObject {
 
 		return {
 			id: this.getId(),
-			owner: this.getOwner().getUserInfo(),
+			owner: this.getOwner().getPublicInfo(),
 			token: this.getToken(),
 			visibility: this.getVisibility(),
 			type: this.constructor.name.toLowerCase() + "s",
-			users: this.getUsers().map((x) => x.getUserInfo()),
+			users: this.getUsers().map((x) => x.getPublicInfo()),
 			data,
 		};
 	}
@@ -76,10 +76,10 @@ class ManageableObject {
 
 		data = {
 			id: this.getId(),
-			owner: this.getOwner().getUserInfo(),
+			owner: this.getOwner().getPublicInfo(),
 			visibility: this.getVisibility(),
 			type: this.constructor.name.toLowerCase() + "s",
-			users: this.getUsers().map((x) => x.getUserInfo()),
+			users: this.getUsers().map((x) => x.getPublicInfo()),
 			data,
 		};
 		return data;
@@ -105,12 +105,10 @@ class ManageableObject {
 
 		data = {
 			id: this.getId(),
-			owner: this.getOwner().getUserInfo(),
+			owner: this.getOwner().getPublicInfo(),
 			visibility: this.getVisibility(),
 			type: this.constructor.name.toLowerCase() + "s",
-			users: this.getUsers().map((x) => {
-				return { id: "XXXX", username: "XXXX" };
-			}),
+			users: this.getUsers().map((x) => x.getPublicInfo()),
 			data,
 		};
 		return data;

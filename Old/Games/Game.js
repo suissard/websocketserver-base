@@ -1,4 +1,4 @@
-const User = require("../User.js");
+const User = require("../../Class/User.js");
 
 class Game {
 	/**
