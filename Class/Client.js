@@ -24,8 +24,8 @@ class WebSocketClient {
 
 			get_data: this.handleGetData,
 			get_all_data: this.handleGetAllData,
+			update_data:this.handleUpdateData,
 			
-			UpdateUser: this.handleUpdateUser, //TODO transformer en updateDAta
 		}
 
 		// this.events = [
@@ -238,6 +238,16 @@ class WebSocketClient {
 
 		// if (userName != localUserName && token != localToken) this.login(this.userName, this.token);
 	}
+
+	handleLogout(){
+
+	}
+
+
+	handleDisconnect(){
+
+	}
+
 	handleUpdateUser(data) {
 		this.save(data);
 	}
@@ -245,6 +255,10 @@ class WebSocketClient {
 	handleConnectLobby(data) {
 		this.data.setLobby(data);
 		this.store.commit("refreshActiveTchatMessages");
+	}
+
+	handleDisconnectLobby(){
+
 	}
 
 	handleData(data) {
@@ -277,20 +291,24 @@ class WebSocketClient {
 	handleViewedMessage(data) {
 		data;
 	}
-	handleStartTypingMessage(data) {
-		data;
-	}
-	handleStopTypingMessage(data) {
+	
+	handleTypingMessage(data) {
 		data;
 	}
 
-	//===== GAMES ==========================================================
-	handleCreateGame(data) {
-		data;
+
+	handleGetData(){
+
 	}
-	handleUpdateGame(data) {
-		data;
+	
+	handleGetAllData(){
+
 	}
+
+	handleUpdateData(){
+
+	}
+
 
 	//===== NOTIFICATIONS ==========================================================
 	handlesuccess(data) {
@@ -339,32 +357,6 @@ class WebSocketClient {
 		});
 	}
 
-	handlenewConnectedObject(data) {
-		console.log("newConnectedObject", data);
-		this.store.commit("setBD", { type: "connectedObjects", id: data.id, value: data });
-
-		// Vue.prototype.$app.notif({
-		// 	title: "Nouveau objet connecté",
-		// 	type: "info",
-		// 	timer: data.timer ? data.timer : 5,
-		// 	message: data,
-		// });
-
-		// Vue.prototype.$app.$store.commit("setBD", {
-		// 	type: "topics",
-		// 	id: topic,
-		// 	value: { id: topic, value: message },
-		// });
-	}
-
-	handleawaitResponse(data) {
-		let { id, action, actionID } = data;
-		console.log("awaitResponse", data);
-		this.store.commit("delete", {
-			type: "awaitResponses",
-			id: `${id}-${action}-${actionID}`,
-		});
-	}
 }
 
 export default WebSocketClient;

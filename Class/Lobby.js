@@ -41,8 +41,8 @@ class Lobby extends ManageableObject {
 				message.getToken(),
 				message.getVisibility(),
 				message.getId(),
-				message.createdAt,
-				message.updatedAt
+				message.getCreatedAt(),
+				message.getUpdatedAt()
 			);
 		}
 		return this.messages;
@@ -103,7 +103,7 @@ class Lobby extends ManageableObject {
 	getMessages() {
 		let messageArray = [];
 		this.messages.forEach((x) => messageArray.push(x.getPartialInfo()));
-		return messageArray.sort((a, b) => a.createdAt - b.createdAt);
+		return messageArray.sort((a, b) => a.getCreatedAt() - b.getCreatedAt());
 	}
 
 	getPrivateInfo() {

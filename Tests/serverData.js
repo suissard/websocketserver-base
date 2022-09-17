@@ -3,7 +3,7 @@ import ObjectsManager from "../Class/ObjectsManager.js";
 import User from "../Class/User.js";
 
 const Server = require("../Class/Server");
-const WebSocketClient = require("./WebSocketClient.js");
+const WebSocketClient = require("./WebSocketClientForTesting.js");
 
 /**
  *

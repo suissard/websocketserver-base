@@ -30,9 +30,9 @@ test("ManageableObject : Basic data", async () => {
 	expect(object.getOwner()).toBeInstanceOf(User);
 	expect(object.getToken()).toBeTypeOf("string");
 	expect(object.getVisibility()).toBeTypeOf("boolean");
-	expect(object.createdAt).toBeTypeOf("number");
-	expect(object.updatedAt).toBeTypeOf("number");
-	expect(object.createdAt).toBeLessThan(Date.now());
+	expect(object.getCreatedAt()).toBeTypeOf("number");
+	expect(object.getUpdatedAt()).toBeTypeOf("number");
+	expect(object.getCreatedAt()).toBeLessThan(Date.now());
 });
 
 test("ManageableObject : system entries", async () => {
@@ -157,7 +157,7 @@ test("Manager : getInfo", async () => {
 	const infoFromUser = JSON.parse(manager.getInfo(object.getId(), user3));
 	expect(infoFromUser.token).toBe();
 	expect(infoFromUser.test).toBe();
-	expect(infoFromUser.data.createdAt).toBe(object.createdAt);
+	expect(infoFromUser.createdAt).toBe(object.getCreatedAt());
 	expect(infoFromUser.users[0].id).toBe(user3.getId());
 
 	object.setVisibility(true);
@@ -167,7 +167,8 @@ test("Manager : getInfo", async () => {
 	expect(infoFromPublic.owner.id).toBe(object.getOwner().getId());
 	expect(infoFromPublic.visibility).toBe(object.getVisibility());
 	expect(infoFromPublic.users[0].id).toBe(user3.getId());
-	expect(infoFromPublic.data.createdAt).toBe();
+	expect(infoFromPublic.createdAt).toBe(object.getCreatedAt());
+	expect(infoFromPublic.updatedAt).toBe();
 	expect(infoFromPublic.data.test).toBe();
 
 	object.setVisibility(false);

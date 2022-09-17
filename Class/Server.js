@@ -30,6 +30,7 @@ class Server extends io.Server {
 			get_data: this.handleGetData,
 			get_all_data: this.handleGetAllData,
 			
+			update_Data: this.handleUpdateData, //TODO transformer en updateDAta
 			UpdateUser: this.handleUpdateUser, //TODO transformer en updateDAta
 		};
 
@@ -112,6 +113,14 @@ class Server extends io.Server {
 		// TODO Envoyer toutes les informations
 		// for (let i in allData) user.emit("dataUpdate", allData[i]);
 	}
+
+	handleUpdateData(authUser, socket, data){
+		let { token, type, id } = data;
+
+		if (!this[type]) throw new Error(`Le type "${type}" n'existe pas`)
+		this[type].update(id, user, data)
+
+		}
 
 	/**
 	 * Evenement de mise a jour d'un utilisateur

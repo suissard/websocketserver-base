@@ -1,6 +1,6 @@
 const io = require( "socket.io-client");
 
-class WebSocketClient {
+module.exports =class WebSocketClientForTesting {
 	constructor(domain = "localhost", port = 3000, protocole = "http") {
 		this.url = `${protocole}://${domain}:${port}`;
 
@@ -30,5 +30,3 @@ class WebSocketClient {
 		this.socket.emit(event, data)
 	}
 }
-
-module.exports = WebSocketClient;

@@ -28,9 +28,9 @@ test("User : Basics", async () => {
 
 	expect(userServerSide.setLobbys(lobbys).size).toBe(3);
 
-	const reservedProperty = 'socket'
-	expect(()=>userServerSide.update({[reservedProperty]:"wrongValue"})).toThrowError(`"${reservedProperty}" is reserved in ${userServerSide.constructor.name}`)
-
+	const reservedProperty = "socket";
+	userServerSide.update({ [reservedProperty]: "wrongValue" }).getPrivateInfo();
+	expect(userServerSide.socket != "wrongValue").toBeTruthy();
 });
 
 test("User : Infos", async () => {
@@ -52,9 +52,9 @@ test("User : Infos", async () => {
 		visibility: userServerSide.getVisibility(),
 		type: userServerSide.constructor.name.toLowerCase() + "s",
 		users: [],
+		createdAt: userServerSide.getCreatedAt(),
+		updatedAt: userServerSide.getUpdatedAt(),
 		data: {
-			createdAt: userServerSide.createdAt,
-			updatedAt: userServerSide.updatedAt,
 			username: userServerSide.username,
 			lobbys: new Map(),
 		},
@@ -66,10 +66,10 @@ test("User : Infos", async () => {
 		visibility: userServerSide.getVisibility(),
 		type: userServerSide.constructor.name.toLowerCase() + "s",
 		users: [],
+		createdAt: userServerSide.getCreatedAt(),
+		updatedAt: userServerSide.getUpdatedAt(),
 		data: {
 			username: userServerSide.username,
-			createdAt: userServerSide.createdAt,
-			updatedAt: userServerSide.updatedAt,
 		},
 	});
 
@@ -81,10 +81,9 @@ test("User : Infos", async () => {
 	});
 });
 
-
 test("User : connection state", async () => {
 	expect(userServerSide.isConnect()).toBeTruthy();
-	userClientSide.socket.disconnect()
-	await wait()
+	userClientSide.socket.disconnect();
+	await wait();
 	expect(userServerSide.isConnect()).toBeFalsy();
 });

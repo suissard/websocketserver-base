@@ -27,8 +27,8 @@ class ManageableObject {
 		this.setVisibility(visibility);
 		this.setUsers(users);
 
-		this.createdAt = createdAt || Date.now();
-		this.updatedAt = updatedAt || Date.now();
+		this.setCreatedAt(createdAt || Date.now())
+		this.setUpdatedAt(updatedAt || Date.now())
 
 		for (let i in data) {
 			if (this[i]) throw new Error(`"${i}" already exist in ${this.constructor.name}`);
@@ -52,6 +52,8 @@ class ManageableObject {
 			visibility: this.getVisibility(),
 			type: this.constructor.name.toLowerCase() + "s",
 			users: this.getUsers().map((x) => x.getPublicInfo()),
+			createdAt: this.getCreatedAt(),
+			updatedAt: this.getUpdatedAt(),
 			data,
 		};
 	}
@@ -60,7 +62,7 @@ class ManageableObject {
 	 * @returns {Array}
 	 */
 	getPartialProperty() {
-		return ["createdAt", "updatedAt"];
+		return [];
 	}
 	/**
 	 * Récupérer les infos partielles liée à l'objet
@@ -80,6 +82,8 @@ class ManageableObject {
 			visibility: this.getVisibility(),
 			type: this.constructor.name.toLowerCase() + "s",
 			users: this.getUsers().map((x) => x.getPublicInfo()),
+			createdAt: this.getCreatedAt(),
+			updatedAt: this.getUpdatedAt(),
 			data,
 		};
 		return data;
@@ -109,6 +113,7 @@ class ManageableObject {
 			visibility: this.getVisibility(),
 			type: this.constructor.name.toLowerCase() + "s",
 			users: this.getUsers().map((x) => x.getPublicInfo()),
+			createdAt: this.getCreatedAt(),
 			data,
 		};
 		return data;
@@ -130,13 +135,14 @@ class ManageableObject {
 	update(data) {
 		this.beforeUpdated(data);
 		for (let i in data) {
-			if (!this.getUpdatableProperty().includes(i))
-				throw new Error(`"${i}" is reserved in ${this.constructor.name}`);
+			if (!this.getUpdatableProperty().includes(i)) continue;
+			// throw new Error(`"${i}" is reserved in ${this.constructor.name}`);
 			if (this[i] !== data[i]) this[i] = data[i];
 		}
-		this.updatedAt = Date.now();
+		this.setUpdatedAt(Date.now());
 
 		this.updated(data);
+		//TODO Emettre un event Update_data
 		return this;
 	}
 
@@ -206,6 +212,35 @@ class ManageableObject {
 	 */
 	setVisibility(visibility) {
 		return this.setProperty("getVisibility", visibility);
+	}
+
+	/**
+	 * Récuperer le timestamp de creation system de l'objet
+	 * @returns {Number}
+	 */
+	getCreatedAt() {
+		throw new Error("This function must be overcharge");
+	}
+	/**
+	 * Définir le timestamp de creation system de l'objet
+	 * @param {Number} id
+	 */
+	setCreatedAt(timestamp) {
+		return this.setProperty("getCreatedAt", timestamp);
+	}
+	/**
+	 * Récuperer le timestamp de derniere update system de l'objet
+	 * @returns {Number}
+	 */
+	getUpdatedAt() {
+		throw new Error("This function must be overcharge");
+	}
+	/**
+	 * Définir le timestamp de derniere update system de l'objet
+	 * @param {Number} id
+	 */
+	setUpdatedAt(timestamp) {
+		return this.setProperty("getUpdatedAt", timestamp);
 	}
 
 	/**

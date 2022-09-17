@@ -15,7 +15,7 @@ class ObjectsManager extends Map {
 		this.setConstructor(constructor);
 
 		this.adminsId = adminsId;
-		this.actionsByRight
+		this.actionsByRight;
 		this.setActionsByRights(actionsByRight);
 	}
 	/**
@@ -73,8 +73,7 @@ class ObjectsManager extends Map {
 			users: ["addUser", "addUsers"],
 		}
 	) {
-		this.actionsByRight = actions
-		
+		this.actionsByRight = actions;
 	}
 	/**
 	 * Générer un token d'authentication
@@ -124,7 +123,8 @@ class ObjectsManager extends Map {
 		if (!id || !user) throw Error(`An ID and a user must be specified`);
 		const object = this.get(id);
 		if (!object) throw Error(`${constructor.name} "${id}" doesn't exist`);
-		if (!object.userIsOwner(user)) throw new Error(`${user.username} is not the owner`);
+		if (!object.userIsOwner(user) || this.userIsAdmin(user))
+			throw new Error(`${user.username} is not the owner`);
 		object.update(data);
 
 		return object;
