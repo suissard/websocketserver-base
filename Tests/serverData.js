@@ -52,7 +52,7 @@ const getServerData = async function (handlers) {
 	userClientSide.socket.emit("login", { username: usernameServerSide });
 	await wait(400);
 	userClientSide.id = userClientSide.lastData.id;
-	const userServerSide = server.users.get(userClientSide.lastData.id);
+	const userServerSide = server.collections.users.get(userClientSide.lastData.id);
 
 	if (
 		(!server ||
@@ -63,7 +63,7 @@ const getServerData = async function (handlers) {
 	)
 		throw new Error("ServerData a bugué");
 
-	return { server, userClientSide, userServerSide };
+	return { server, userClientSide, userServerSide, WebSocketPort };
 };
 
 module.exports = { getServerData, createManager };

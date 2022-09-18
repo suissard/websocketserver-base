@@ -31,33 +31,8 @@ class UsersManager extends ObjectsManager {
 	 * @returns {User}
 	 */
 	findUserWithSocket(socket) {
-		for (let [id, user] of this) if (user.socket.id == socket.id) return user;
+		for (let [id, user] of this) if (user?.socket.id == socket?.id) return user;
 		return false;
-	}
-
-	/**
-	 * Mettre a jour le username d'un utilisateur
-	 * @param {User} user utilisateur a update
-	 * @param {Object} data contient les donnée a mettre a jour
-	 */
-	updateUser(user, data) {
-		let modifications = [];
-		for (let i in user) {
-			let newProperty = data[i],
-				actualProperty = user[i];
-			if (newProperty === undefined || newProperty === actualProperty) continue;
-
-			user[i] = newProperty;
-			modifications.push(i);
-		}
-		if (modifications.length) {
-			user.emit("UpdateUser", user.getPrivateInfo());
-			user.info({
-				title: "Modifications enregistrées",
-				message: modifications.map((val) => `${val} => ${user[val]}`).join("\n"),
-			});
-		}
-		return user;
 	}
 
 	/**
@@ -89,11 +64,13 @@ class UsersManager extends ObjectsManager {
 	loginUser(socket, data) {
 		let { token, id, username } = data;
 		let tokenUser = this.findUserWithToken(token);
+		let socketUser = this.findUserWithSocket(socket);
 
 		//si token correspond a un utilisateur, c'est une reconnexion
-		if (tokenUser) {
-			this.updateUser(tokenUser, data);
-			return this.reconnectUser(socket, tokenUser);
+		if (tokenUser || socketUser) {
+			if (tokenUser)
+				this.update((tokenUser).getId(), tokenUser, data);
+			return this.reconnectUser(socket, tokenUser || socketUser);
 		}
 		//TODO verifie si existance d'un utilisateur relié a ce socket => en créer un si non
 		let user = this.create(true, { socket, username }); // Creer un utilisateur

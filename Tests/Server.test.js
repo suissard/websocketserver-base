@@ -10,16 +10,16 @@ test("Server : login & logout et users", async () => {
 	userClientSide = serverData.userClientSide;
 	userServerSide = serverData.userServerSide;
 
-	const findWithNoAutorization = server.users.find(() => {
+	const findWithNoAutorization = server.collections.users.find(() => {
 		return true;
 	});
 	expect(findWithNoAutorization).toBeFalsy();
-	const findWithGoodUser = server.users.find(() => {
+	const findWithGoodUser = server.collections.users.find(() => {
 		return true;
 	}, userServerSide);
 	expect(findWithGoodUser).toBe(userServerSide);
 
-	const findWithToken = server.users.find(
+	const findWithToken = server.collections.users.find(
 		() => {
 			return true;
 		},
@@ -32,28 +32,28 @@ test("Server : login & logout et users", async () => {
 
 	expect(userClientSide.lastEvent).toBe("login");
 	expect(userClientSide.lastData.id).toBe(userServerSide.getPrivateInfo().id);
-	expect(server.users.size).toBe(1);
+	expect(server.collections.users.size).toBe(1);
 	server.handleLogout(userServerSide);
 	await wait();
-	expect(server.users.size).toBe(0);
-	userServerSide = server.users.get(userServerSide.getId());
+	expect(server.collections.users.size).toBe(0);
+	userServerSide = server.collections.users.get(userServerSide.getId());
 	expect(userServerSide).toBeFalsy();
 	userClientSide.socket.emit("login", { username: userClientSide.lastData.username });
 	await wait();
-	userServerSide = server.users.get(userClientSide.lastData.id);
+	userServerSide = server.collections.users.get(userClientSide.lastData.id);
 });
 
 test("Server : HandleUpdateUser", async () => {
 	const updatedUsername = "updatedUsername";
-	server.handleUpdateUser(
-		userServerSide,
-		userClientSide.socket,
-		{ username: updatedUsername, token: userServerSide.getToken() }
-	);
+	server.handleUpdateData(userServerSide, userClientSide.socket, {
+		username: updatedUsername,
+		token: userServerSide.getToken(),
+		type: "users",
+		id: userServerSide.getId(),
+	});
 	await wait();
 	expect(userServerSide.username).toBe(updatedUsername);
 });
-
 
 test("Server : new listener", async () => {
 	var listener1Data = false;
@@ -74,7 +74,6 @@ test("Server : new listener", async () => {
 	userClientSide = serverData.userClientSide;
 	userServerSide = serverData.userServerSide;
 
-	userClientSide.emit("login", data1);
 	userClientSide.emit("listener1", data1);
 
 	await wait();

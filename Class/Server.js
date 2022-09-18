@@ -29,15 +29,13 @@ class Server extends io.Server {
 
 			get_data: this.handleGetData,
 			get_all_data: this.handleGetAllData,
-			
-			update_Data: this.handleUpdateData, //TODO transformer en updateDAta
-			UpdateUser: this.handleUpdateUser, //TODO transformer en updateDAta
+
+			update_Data: this.handleUpdateData,
 		};
 
 		this.handlers = handlers;
 
-		this.users = new UsersManager();
-		this.lobbys = new LobbysManager();
+		this.collections = { users: new UsersManager(), lobbys: new LobbysManager() };
 
 		this.setListeners(this.nativeListeners, handlers);
 	}
@@ -76,7 +74,7 @@ class Server extends io.Server {
 	setListener(socket, listener, handler) {
 		socket.on(listener, (data) => {
 			try {
-				let authUser = this.users.findUserWithSocket(socket);
+				let authUser = this.collections.users.findUserWithSocket(socket);
 				if (!authUser && !["login", "connexion"].includes(listener))
 					throw new Error("Need authentication");
 
@@ -107,43 +105,17 @@ class Server extends io.Server {
 	 * @param {Object} data
 	 */
 	handleLogin(authUser, socket, data) {
-		let user = this.users.loginUser(socket, data);
-		user.emit("login", this.users.getInfo(user.getId(), user));
+		let user = this.collections.users.loginUser(socket, data);
+		user.emit("login", this.collections.users.getInfo(user.getId(), user));
 
 		// TODO Envoyer toutes les informations
 		// for (let i in allData) user.emit("dataUpdate", allData[i]);
 	}
 
-	handleUpdateData(authUser, socket, data){
+	handleUpdateData(authUser, socket, data) {
 		let { token, type, id } = data;
-
-		if (!this[type]) throw new Error(`Le type "${type}" n'existe pas`)
-		this[type].update(id, user, data)
-
-		}
-
-	/**
-	 * Evenement de mise a jour d'un utilisateur
-	 * @param {Socket} socket
-	 * @param {Object} data
-	 */
-	handleUpdateUser(authUser, socket, data) {
-		let { username, token } = data;
-		//verifie si existance d'un utilisateur relié a ce token
-		let user = this.users.checkUserAccess(authUser.getId(), authUser, token);
-		// let user = this.users.findUserWithToken(token);
-		if (!user) {
-			if (!authUser)
-				return socket.emit("error", {
-					title: "Bug du serveur",
-					message: "Raffraichissez la page",
-				});
-			throw new Error({
-				title: `Changement de nom impossible`,
-				message: "Le token d'authentification est invalide",
-			});
-		}
-		this.users.updateUser(user, data);
+		if (!this.collections[type]) throw new Error(`Le type "${type}" n'existe pas`);
+		this.collections[type].update(id, authUser, data);
 	}
 
 	/**
@@ -153,7 +125,7 @@ class Server extends io.Server {
 	 */
 	handleLogout(authUser) {
 		if (!authUser) throw new Error(`Utilisateur déjà déconnecté`);
-		this.users.logoutUser(authUser);
+		this.collections.users.logoutUser(authUser);
 	}
 
 	handleDisconnect(authUser) {}
