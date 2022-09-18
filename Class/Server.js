@@ -29,7 +29,6 @@ class Server extends io.Server {
 
 			get_data: this.handleGetData,
 			get_all_data: this.handleGetAllData,
-
 			update_Data: this.handleUpdateData,
 		};
 
@@ -105,11 +104,9 @@ class Server extends io.Server {
 	 * @param {Object} data
 	 */
 	handleLogin(authUser, socket, data) {
+		console.log("server handleLogin",authUser?true:false)
 		let user = this.collections.users.loginUser(socket, data);
 		user.emit("login", this.collections.users.getInfo(user.getId(), user));
-
-		// TODO Envoyer toutes les informations
-		// for (let i in allData) user.emit("dataUpdate", allData[i]);
 	}
 
 	handleUpdateData(authUser, socket, data) {
@@ -128,7 +125,7 @@ class Server extends io.Server {
 		this.collections.users.logoutUser(authUser);
 	}
 
-	handleDisconnect(authUser) {}
+	handleDisconnect(authUser, socket, data) {}
 
 	/**
 	 * Evenement de connexion a un lobby
@@ -141,11 +138,15 @@ class Server extends io.Server {
 
 		if (id === undefined) throw new Error("Pas d'id de lobby fournit");
 
-		let lobby = this.lobbys.get(id);
-		if (!lobby) lobby = this.lobbys.create(authUser, data, token, undefined, id);
+		let lobby = this.collections.lobbys.get(id);
+		if (!lobby)
+			lobby = this.collections.lobbys.create(authUser, data, token, undefined, id);
 
-		this.lobbys.connect(id, authUser, token); // Connection d'un utilisateur
-		authUser.emit("connect_lobby", this.lobbys.getInfo(lobby.getId(), authUser));
+		this.collections.lobbys.connect(id, authUser, token); // Connection d'un utilisateur
+		authUser.emit(
+			"connect_lobby",
+			this.collections.lobbys.getInfo(lobby.getId(), authUser)
+		);
 	}
 
 	/**
@@ -155,9 +156,8 @@ class Server extends io.Server {
 	 * @param {Object} data
 	 */
 	handleDisconnectLobby(authUser, socket, data) {
-		console.log(authUser.username, data);
 		let { id, token } = data;
-		let lobby = this.lobbys.checkUserAccess(id, authUser, token);
+		let lobby = this.collections.lobbys.checkUserAccess(id, authUser, token);
 		lobby.disconnect(authUser); // Déconnection d'un utilisateur
 	}
 
@@ -168,9 +168,9 @@ class Server extends io.Server {
 	 * @param {Object} data
 	 */
 	handleSendMessage(authUser, socket, data) {
-		let { id, token, content } = data;
-		let lobby = this.lobbys.checkUserAccess(id, authUser, token);
-		return lobby.createMessage(content, authUser);
+		let { lobby, token, content } = data;
+		let lobbyServer = this.collections.lobbys.checkUserAccess(lobby, authUser, token);
+		return lobbyServer.createMessage(content, authUser);
 	}
 
 	/**
@@ -180,7 +180,11 @@ class Server extends io.Server {
 	 */
 	handleReceivedMessage(authUser, socket, data) {
 		let { lobby, message, token } = data;
-		const lobbyObject = this.lobbys.checkUserAccess(lobby.id, authUser, token);
+		const lobbyObject = this.collections.lobbys.checkUserAccess(
+			lobby.id,
+			authUser,
+			token
+		);
 		const messageObject = lobbyObject.messages.checkUserAccess(
 			message.id,
 			authUser,
@@ -196,7 +200,11 @@ class Server extends io.Server {
 	 */
 	handleViewedMessage(authUser, socket, data) {
 		let { lobby, message, token } = data;
-		const lobbyObject = this.lobbys.checkUserAccess(lobby.id, authUser, token);
+		const lobbyObject = this.collections.lobbys.checkUserAccess(
+			lobby.id,
+			authUser,
+			token
+		);
 		const messageObject = lobbyObject.messages.checkUserAccess(
 			message.id,
 			authUser,
@@ -211,8 +219,12 @@ class Server extends io.Server {
 	 * @param {Object} data
 	 */
 	handleTypingMessage(authUser, socket, data) {
-		let { lobby, message, token } = data;
-		const lobbyObject = this.lobbys.checkUserAccess(lobby.id, authUser, token);
+		let { lobby, token } = data;
+		const lobbyObject = this.collections.lobbys.checkUserAccess(
+			lobby.id,
+			authUser,
+			token
+		);
 		const messageObject = lobbyObject.messages.checkUserAccess(
 			message.id,
 			authUser,
@@ -223,22 +235,17 @@ class Server extends io.Server {
 
 	//EVENEMENT DE DATA ======================================================
 	handleGetData(authUser, socket, data) {
-		let result = this;
-
-		let path = data.split("/");
-
-		for (let i in path) {
-			if (result[path[i]] !== undefined) result = result[path[i]];
-			else result = result.get(path[i]);
-		}
-		result = result.getInfos(authUser);
-
-		authUser.emit("get_data", { type: data, data: result });
+		let { id, type, token } = data;
+		let result = this.collections[type].getInfo(id, authUser, token);
+		authUser.emit("get_data", { type, data: result });
 	}
 
 	handleGetAllData(authUser, socket, data) {
 		console.log("get_all_data", data);
-		authUser.emit("get_all_data", { type: data, data: JSON.stringify(this.Data) });
+		for (let type in this.collections){
+			let result = this.collections[type].getInfos(id, authUser, token);
+			authUser.emit("get_all_data", { type, data: result });
+		}
 	}
 
 	//EVENEMETN DE TOPIC ======================================================

@@ -65,15 +65,15 @@ class UsersManager extends ObjectsManager {
 		let { token, id, username } = data;
 		let tokenUser = this.findUserWithToken(token);
 		let socketUser = this.findUserWithSocket(socket);
-
+	
 		//si token correspond a un utilisateur, c'est une reconnexion
 		if (tokenUser || socketUser) {
-			if (tokenUser)
-				this.update((tokenUser).getId(), tokenUser, data);
+			this.update((tokenUser || socketUser).getId(), tokenUser || socketUser, data);
 			return this.reconnectUser(socket, tokenUser || socketUser);
 		}
-		//TODO verifie si existance d'un utilisateur relié a ce socket => en créer un si non
+
 		let user = this.create(true, { socket, username }); // Creer un utilisateur
+		if (username)this.update(user.getId(), user, data)
 		return user;
 	}
 

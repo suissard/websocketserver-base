@@ -3,6 +3,7 @@ import ClientCache from "./ClientCache.js";
 
 /**
  * Systeme de lien websocket et gestion d'un cache de données
+ * Déclenche des evenemnt pour pouvoir alimenter un autre gestionnaire d edonéne (ex : store Vue)
  */
 export default class WebSocketClient {
 	constructor(domain = "localhost", port = 3000, protocole = "http", handlers = {}) {
@@ -107,7 +108,7 @@ export default class WebSocketClient {
 			this.socket = undefined;
 			this.store.commit("connexion", false);
 			this.store.commit("error", true);
-			this.store.commit("setUser", { userName: "ERROR" });
+			this.store.commit("setUser", { username: "ERROR" });
 
 			Vue.prototype.$app.notif({
 				title: "Connexion impossible",
@@ -118,25 +119,7 @@ export default class WebSocketClient {
 		}, timer);
 	}
 
-	/**
-	 * Envoie une requete de login avec priorité au données en local si pas d'argument fournit
-	 */
-	login(data = {}) {
-		let { userName, token } = data;
-		// if (!userName) userName = localStorage.getItem("userName");
-		// if (!token) token = localStorage.getItem("token");
-		// // this.socket.emit("Login", { userName, token });
-		this.socket.emit("login", { userName, token });
-		// Vue.prototype.$dataBase.fetchAll();
-	}
-
-	logout() {
-		// this.socket.disconnect(true);
-		// this.socket = undefined;
-		// let userName, token;
-		// this.store.commit("setUser", { userName, token });
-	}
-
+	//TODO Communication avec le localStorage ================================
 	/**
 	 * Met a jour le localstorage en fonction des données fournit
 	 */
@@ -150,56 +133,113 @@ export default class WebSocketClient {
 	 */
 	clear() {
 		// localStorage.removeItem("id");
-		// localStorage.removeItem("userName");
+		// localStorage.removeItem("username");
 		// localStorage.removeItem("token");
 		// this.store.commit("setUser", {});
 	}
 
 	/**
-	 * Charge les données userName et token stocké en local Storage
+	 * Charge les données username et token stocké en local Storage
 	 */
 	restore() {
 		// let localId = localStorage.getItem("id"),
-		// 	localUserName = localStorage.getItem("userName"),
+		// 	localUserName = localStorage.getItem("username"),
 		// 	localToken = localStorage.getItem("token"),
 		// 	id,
-		// 	userName,
+		// 	username,
 		// 	token;
 		// if (!localId || localId == "null") id = localId;
-		// if (!localUserName || localUserName == "null") userName = localUserName;
+		// if (!localUserName || localUserName == "null") username = localUserName;
 		// if (!localToken || localToken == "null") token = localToken;
-		// this.store.commit("setUser", { id, userName, token });
+		// this.store.commit("setUser", { id, username, token });
 	}
 
 	// ======= EMETRE DES EVENTS ====================================================================
+
 	/**
-	 * Mettre a jour les sdonnées de l'utilisateur
-	 * @param {*} data
+	 * Envoie une requete de login avec priorité au données en local si pas d'argument fournit
 	 */
-	// updateUser(data = {}) {
-	// 	let token = this.store.state.userToken;
-	// 	data.token = token;
-	// 	this.socket.emit("UpdateUser", data);
-	// }
+	login(username, token) {
+		// if (!username) username = localStorage.getItem("username");
+		// if (!token) token = localStorage.getItem("token");
+		// // this.socket.emit("Login", { username, token });
+		console.log("login", username)
+		this.socket.emit("login", { username, token });
+	}
+
+	logout() {
+		// this.socket.disconnect(true);
+		// this.socket = undefined;
+		// let username, token;
+		// this.store.commit("setUser", { username, token });
+		this.socket.emit("logout");
+
+	}
 
 	/**
 	 * Connecter l'utilisateur actuel a un lobby
 	 * @param {*} lobbyId
 	 * @param {*} token Certain lobby necessite un token pour se connecter
 	 */
-	connectLobby(lobbyId, token) {
-		this.socket.emit("ConnectLobby", { lobbyId, token });
+	connectLobby(id, token) {
+		this.socket.emit("connect_lobby", { id, token });
+	}
+
+	/**
+	 * Déconnecter l'utilisateur actuel d'un lobby
+	 * @param {*} lobbyId
+	 * @param {*} token Certain lobby necessite un token pour se connecter
+	 */
+	disconnectLobby(lobby, token) {
+		this.socket.emit("disconnect_lobby", { lobby, token });
 	}
 
 	/**
 	 * Envoyer une evenement message
-	 * @param {*} lobbyId Identifiant du lobby ciblé
+	 * @param {*} lobby Identifiant du lobby ciblé
 	 * @param {*} content Message
 	 */
-	async sendMessage(lobbyId, content) {
-		await this.socket.emit("SendMessage", { lobbyId, content });
+	async sendMessage(lobby, content, token) {
+		await this.socket.emit("send_message", { lobby, content, token });
 	}
 
+	/**
+	 * Indiquer qu'un message a été recu
+	 * @param {*} lobby lobby contenant le message
+	 * @param {*} message message correctement recu
+	 * @param {*} token token justifiant l'acces si besoin
+	 */
+	async receivedMessage(lobby, message, token) {
+		await this.socket.emit("received_message", { lobby, message, token });
+	}
+
+	/**
+	 * Indiquer qu'un message a été vus
+	 * @param {*} lobby lobby contenant le message
+	 * @param {*} message message correctement recu
+	 * @param {*} token token justifiant l'acces si besoin
+	 */
+	async viewedMessage(lobby, message, token) {
+		await this.socket.emit("viewed_message", { lobby, message, token });
+	}
+
+	/**
+	 * Indiquer qu'un message est en cour de redaction dans un lobby
+	 * @param {*} lobby lobby contenant le message
+	 * @param {*} message message correctement recu
+	 * @param {*} token token justifiant l'acces si besoin
+	 */
+	async typingMessage(lobby, token) {
+		await this.socket.emit("typing_message", { lobby, token });
+	}
+
+	async getData(id, type) {
+		await this.socket.emit("get_data", { id, type });
+	}
+
+	async getAllData(token) {
+		await this.socket.emit("get_all_data", {token});
+	}
 	// ======= REACTIONS AUX EVENTS ====================================================================
 	/**
 	 * Reception d'un evenement login
@@ -208,7 +248,7 @@ export default class WebSocketClient {
 		this.save(data);
 		this.store.commit("connexion", true);
 
-		// if (userName != localUserName && token != localToken) this.login(this.userName, this.token);
+		// if (username != localUserName && token != localToken) this.login(this.username, this.token);
 	}
 
 	handleLogout() {}
