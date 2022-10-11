@@ -110,6 +110,7 @@ test("Client : Event", async () => {
 	expect(client.lastEvent).toBe("get_all_data");
 	// expect(client.lastEvent).toBe("get_all_data");
 	//TODO getInfos Renvoie trop d'inforamtion => alléger
+	// TODO getAllData devrait répondre une simple suite de get_data
 
 });
 
