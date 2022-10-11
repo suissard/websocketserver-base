@@ -104,7 +104,6 @@ class Server extends io.Server {
 	 * @param {Object} data
 	 */
 	handleLogin(authUser, socket, data) {
-		console.log("server handleLogin",authUser?true:false)
 		let user = this.collections.users.loginUser(socket, data);
 		user.emit("login", this.collections.users.getInfo(user.getId(), user));
 	}
@@ -134,7 +133,9 @@ class Server extends io.Server {
 	 * @param {Object} data
 	 */
 	handleConnectLobby(authUser, socket, data) {
-		let { id, token } = data;
+		let {
+			lobby: { id, token },
+		} = data;
 
 		if (id === undefined) throw new Error("Pas d'id de lobby fournit");
 
@@ -156,7 +157,9 @@ class Server extends io.Server {
 	 * @param {Object} data
 	 */
 	handleDisconnectLobby(authUser, socket, data) {
-		let { id, token } = data;
+		let {
+			lobby: { id, token },
+		} = data;
 		let lobby = this.collections.lobbys.checkUserAccess(id, authUser, token);
 		lobby.disconnect(authUser); // Déconnection d'un utilisateur
 	}
@@ -168,8 +171,11 @@ class Server extends io.Server {
 	 * @param {Object} data
 	 */
 	handleSendMessage(authUser, socket, data) {
-		let { lobby, token, content } = data;
-		let lobbyServer = this.collections.lobbys.checkUserAccess(lobby, authUser, token);
+		let {
+			lobby: { id, token },
+			content,
+		} = data;
+		let lobbyServer = this.collections.lobbys.checkUserAccess(id, authUser, token);
 		return lobbyServer.createMessage(content, authUser);
 	}
 
@@ -183,12 +189,12 @@ class Server extends io.Server {
 		const lobbyObject = this.collections.lobbys.checkUserAccess(
 			lobby.id,
 			authUser,
-			token
+			lobby.token
 		);
 		const messageObject = lobbyObject.messages.checkUserAccess(
 			message.id,
 			authUser,
-			token
+			lobby.token
 		);
 		messageObject.addReceived(authUser);
 	}
@@ -203,12 +209,12 @@ class Server extends io.Server {
 		const lobbyObject = this.collections.lobbys.checkUserAccess(
 			lobby.id,
 			authUser,
-			token
+			lobby.token
 		);
 		const messageObject = lobbyObject.messages.checkUserAccess(
 			message.id,
 			authUser,
-			token
+			lobby.token
 		);
 		messageObject.addViewed(authUser);
 	}
@@ -225,12 +231,8 @@ class Server extends io.Server {
 			authUser,
 			token
 		);
-		const messageObject = lobbyObject.messages.checkUserAccess(
-			message.id,
-			authUser,
-			token
-		);
-		messageObject.typing(authUser);
+
+		lobbyObject.typing(authUser);
 	}
 
 	//EVENEMENT DE DATA ======================================================
@@ -242,8 +244,8 @@ class Server extends io.Server {
 
 	handleGetAllData(authUser, socket, data) {
 		console.log("get_all_data", data);
-		for (let type in this.collections){
-			let result = this.collections[type].getInfos(id, authUser, token);
+		for (let type in this.collections) {
+			let result = this.collections[type].getInfos(authUser, data.token);
 			authUser.emit("get_all_data", { type, data: result });
 		}
 	}

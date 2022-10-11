@@ -53,12 +53,6 @@ class Message extends ManageableObject {
 		});
 	}
 
-	typing(user) {
-		this.lobby.emitToAll("typing_message", {
-			message: this.getPublicInfo(),
-			user: user.getPublicInfo(),
-		});
-	}
 	reply(content, user) {
 		this.lobby.send(content, user);
 	}

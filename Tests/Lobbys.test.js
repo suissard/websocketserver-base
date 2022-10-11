@@ -12,7 +12,7 @@ const sizeLimit = 5,
 	id = "LobbyTestTitle",
 	description = "This is the lobby description";
 
-const data = { id };
+const data = { lobby: { id } };
 
 const { manager, adminUser, ownerUser, partialUser, publicUser, token } = createManager(
 	LobbysManager,
@@ -28,7 +28,7 @@ var lobby = {};
 test("Lobbys : Start", async () => {
 	const serverData = await getServerData();
 	server = serverData.server;
-	server.lobbys = manager;
+	server.collections.lobbys = manager;
 	userClientSide = serverData.userClientSide;
 	userServerSide = serverData.userServerSide;
 	console.log("userServerSide", userServerSide.username);
@@ -60,7 +60,7 @@ test("Lobbys : Creer lobbyManager et lobby", async () => {
 
 test("Lobbys : fonctions server vers lobbyManager", async () => {
 	// "connect_lobby"
-	lobby = server.lobbys.get(id);
+	lobby = server.collections.lobbys.get(id);
 	lobby.setOwner(ownerUser);
 	expect(() => {
 		server.handleConnectLobby(publicUser, publicUser.socket, data);
@@ -73,21 +73,27 @@ test("Lobbys : fonctions server vers lobbyManager", async () => {
 	server.handleConnectLobby(ownerUser, ownerUser.socket, data);
 	server.handleConnectLobby(adminUser, adminUser.socket, data);
 	server.handleConnectLobby(userServerSide, userServerSide.socket, {
-		...data,
-		token: lobby.getToken(),
+		lobby: {
+			...data.lobby,
+			token: lobby.getToken(),
+		}
 	});
 
 	const user1 = new User("user1", true, "ezrzer", { username: "user1" });
 	server.handleConnectLobby(user1, user1.socket, {
-		...data,
-		token: lobby.getToken(),
+		lobby: {
+			...data.lobby,
+			token: lobby.getToken(),
+		}
 	});
 
 	const user2 = new User("user2", true, "ezrzer", { username: "user2" });
 	expect(() => {
 		server.handleConnectLobby(user2, user2.socket, {
-			...data,
-			token: lobby.getToken(),
+			lobby: {
+				...data.lobby,
+				token: lobby.getToken(),
+			}
 		});
 	}).toThrowError(`Lobby ${id} is full`);
 

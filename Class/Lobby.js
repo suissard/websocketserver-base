@@ -84,6 +84,11 @@ class Lobby extends ManageableObject {
 		}
 	}
 
+	typing(user) {
+		this.emitToAll("typing_message", {
+			user: user.getPublicInfo(),
+		});
+	}
 	/**
 	 * Creer un mesage et l'envoie au utilisateur du lobby
 	 * @param {String} content contenus du message
@@ -96,19 +101,9 @@ class Lobby extends ManageableObject {
 		return message;
 	}
 
-	/**
-	 * Récuperer les messages du lobby, par ordre croissant de date de création
-	 * @returns {Array}
-	 */
-	getMessages() {
-		let messageArray = [];
-		this.messages.forEach((x) => messageArray.push(x.getPartialInfo()));
-		return messageArray.sort((a, b) => a.getCreatedAt() - b.getCreatedAt());
-	}
-
 	getPrivateInfo() {
 		let info = super.getPrivateInfo();
-		info.messages = this.getMessages();
+		info.data.messages = this.messages.getMessages();
 		return info;
 	}
 }

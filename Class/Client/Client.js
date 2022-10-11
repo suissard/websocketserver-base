@@ -61,21 +61,18 @@ export default class WebSocketClient {
 	 */
 	setListeners(nativeListeners, handlers = {}) {
 		console.log("🖥 WebsocketServer start");
-		this.socket.on("connection", (socket) => {
-			this.handleConnection(socket);
 
-			//Event natif
-			for (let listener in nativeListeners) {
-				let handler = this.nativeListeners[listener];
-				this.setListener(socket, listener, handler);
-			}
+		//Event natif
+		for (let listener in nativeListeners) {
+			let handler = this.nativeListeners[listener];
+			this.setListener(this.socket, listener, handler);
+		}
 
-			//Event externe
-			for (let listener in handlers) {
-				let handler = handlers[listener];
-				this.setListener(socket, listener, handler);
-			}
-		});
+		//Event externe
+		for (let listener in handlers) {
+			let handler = handlers[listener];
+			this.setListener(this.socket, listener, handler);
+		}
 	}
 
 	/**
@@ -86,18 +83,13 @@ export default class WebSocketClient {
 	 */
 	setListener(socket, listener, handler) {
 		socket.on(listener, (data) => {
+			console.log("listener", listener);
+			this.lastData = data;
+			this.lastEvent = listener;
 			try {
-				let authUser = this.users.findUserWithSocket(socket);
-				if (!authUser && !["login", "connexion"].includes(listener))
-					throw new Error("Need authentication");
-
-				handler.bind(this, authUser, socket, data)();
+				handler.bind(this, data)();
 			} catch (error) {
-				console.error(
-					`ERROR ${listener} from ${socket.request.connection.remoteAddress}`,
-					data,
-					error
-				);
+				console.error(`ClientError ${listener}`, data, error);
 			}
 		});
 	}
@@ -106,16 +98,16 @@ export default class WebSocketClient {
 		setTimeout(() => {
 			if (this.socket && this.socket.connected) return;
 			this.socket = undefined;
-			this.store.commit("connexion", false);
-			this.store.commit("error", true);
-			this.store.commit("setUser", { username: "ERROR" });
+			// this.store.commit("connexion", false);
+			// this.store.commit("error", true);
+			// this.store.commit("setUser", { username: "ERROR" });
 
-			Vue.prototype.$app.notif({
-				title: "Connexion impossible",
-				timer: 5,
-				type: "error",
-				message: "Le serveur ne repond pas",
-			});
+			// Vue.prototype.$app.notif({
+			// 	title: "Connexion impossible",
+			// 	timer: 5,
+			// 	type: "error",
+			// 	message: "Le serveur ne repond pas",
+			// });
 		}, timer);
 	}
 
@@ -124,8 +116,9 @@ export default class WebSocketClient {
 	 * Met a jour le localstorage en fonction des données fournit
 	 */
 	save(data = {}) {
-		this.store.commit("setUser", data);
-		for (let i in data) localStorage.setItem(i, data[i]);
+		console.log("saveData");
+		// this.store.commit("setUser", data);
+		// for (let i in data) localStorage.setItem(i, data[i]);
 	}
 
 	/**
@@ -163,7 +156,7 @@ export default class WebSocketClient {
 		// if (!username) username = localStorage.getItem("username");
 		// if (!token) token = localStorage.getItem("token");
 		// // this.socket.emit("Login", { username, token });
-		console.log("login", username)
+		// console.log("login", username);
 		this.socket.emit("login", { username, token });
 	}
 
@@ -173,7 +166,6 @@ export default class WebSocketClient {
 		// let username, token;
 		// this.store.commit("setUser", { username, token });
 		this.socket.emit("logout");
-
 	}
 
 	/**
@@ -181,26 +173,26 @@ export default class WebSocketClient {
 	 * @param {*} lobbyId
 	 * @param {*} token Certain lobby necessite un token pour se connecter
 	 */
-	connectLobby(id, token) {
-		this.socket.emit("connect_lobby", { id, token });
+	connectLobby(lobbyId, token) {
+		this.socket.emit("connect_lobby", { lobby: { id: lobbyId, token } });
 	}
 
 	/**
 	 * Déconnecter l'utilisateur actuel d'un lobby
-	 * @param {*} lobbyId
+	 * @param {*} lobbyId Id du lobby
 	 * @param {*} token Certain lobby necessite un token pour se connecter
 	 */
-	disconnectLobby(lobby, token) {
-		this.socket.emit("disconnect_lobby", { lobby, token });
+	disconnectLobby(lobbyId, token) {
+		this.socket.emit("disconnect_lobby", { lobby: { id: lobbyId, token } });
 	}
 
 	/**
 	 * Envoyer une evenement message
-	 * @param {*} lobby Identifiant du lobby ciblé
+	 * @param {*} lobbyId Id du lobby
 	 * @param {*} content Message
 	 */
-	async sendMessage(lobby, content, token) {
-		await this.socket.emit("send_message", { lobby, content, token });
+	async sendMessage(lobbyId, content, token) {
+		await this.socket.emit("send_message", { lobby: { id: lobbyId, token }, content });
 	}
 
 	/**
@@ -209,28 +201,33 @@ export default class WebSocketClient {
 	 * @param {*} message message correctement recu
 	 * @param {*} token token justifiant l'acces si besoin
 	 */
-	async receivedMessage(lobby, message, token) {
-		await this.socket.emit("received_message", { lobby, message, token });
+	async receivedMessage(lobbyId, messageId, token) {
+		await this.socket.emit("received_message", {
+			lobby: { id: lobbyId, token },
+			message: { id: messageId },
+		});
 	}
 
 	/**
 	 * Indiquer qu'un message a été vus
-	 * @param {*} lobby lobby contenant le message
+	 * @param {*} lobbyId lobby contenant le message
 	 * @param {*} message message correctement recu
 	 * @param {*} token token justifiant l'acces si besoin
 	 */
-	async viewedMessage(lobby, message, token) {
-		await this.socket.emit("viewed_message", { lobby, message, token });
+	async viewedMessage(lobbyId, messageId, token) {
+		await this.socket.emit("viewed_message", {
+			lobby: { id: lobbyId, token },
+			message: { id: messageId },
+		});
 	}
 
 	/**
 	 * Indiquer qu'un message est en cour de redaction dans un lobby
-	 * @param {*} lobby lobby contenant le message
-	 * @param {*} message message correctement recu
+	 * @param {*} lobbyId lobby contenant le message
 	 * @param {*} token token justifiant l'acces si besoin
 	 */
-	async typingMessage(lobby, token) {
-		await this.socket.emit("typing_message", { lobby, token });
+	async typingMessage(lobbyId, token) {
+		await this.socket.emit("typing_message", { lobby: { id: lobbyId, token } });
 	}
 
 	async getData(id, type) {
@@ -238,7 +235,7 @@ export default class WebSocketClient {
 	}
 
 	async getAllData(token) {
-		await this.socket.emit("get_all_data", {token});
+		await this.socket.emit("get_all_data", { token });
 	}
 	// ======= REACTIONS AUX EVENTS ====================================================================
 	/**
@@ -246,7 +243,7 @@ export default class WebSocketClient {
 	 */
 	handleLogin(data) {
 		this.save(data);
-		this.store.commit("connexion", true);
+		// this.store.commit("connexion", true);
 
 		// if (username != localUserName && token != localToken) this.login(this.username, this.token);
 	}
@@ -260,35 +257,33 @@ export default class WebSocketClient {
 	}
 
 	handleConnectLobby(data) {
-		this.data.setLobby(data);
-		this.store.commit("refreshActiveTchatMessages");
+		// this.data.setLobby(data);
+		// this.store.commit("refreshActiveTchatMessages");
 	}
 
 	handleDisconnectLobby() {}
 
 	handleData(data) {
-		data.type = data.type.split("/");
-
-		let type = data.type.shift();
-		let id = data.type.shift();
-
-		if (type == "users") {
-			if (id) this.data.setUser(data.data);
-			else this.data.setUsers(data.data);
-		} else if (type == "lobbys") {
-			if (id) this.data.setLobby(data.data);
-			else this.data.setLobbys(data.data);
-		} else if (type == "messages") {
-			if (id) this.data.setMessage(data.data);
-			else this.data.setMessages(data.data);
-		}
+		// data.type = data.type.split("/");
+		// let type = data.type.shift();
+		// let id = data.type.shift();
+		// if (type == "users") {
+		// 	if (id) this.data.setUser(data.data);
+		// 	else this.data.setUsers(data.data);
+		// } else if (type == "lobbys") {
+		// 	if (id) this.data.setLobby(data.data);
+		// 	else this.data.setLobbys(data.data);
+		// } else if (type == "messages") {
+		// 	if (id) this.data.setMessage(data.data);
+		// 	else this.data.setMessages(data.data);
+		// }
 	}
 
 	//===== TCHAT ==================================================================
 	handleSendMessage(data) {
-		this.data.setMessage(data);
-		if (this.store.state.activeTchatLobbyId == data.lobbyId)
-			this.store.commit("refreshActiveTchatMessages");
+		// this.data.setMessage(data);
+		// if (this.store.state.activeTchatLobbyId == data.lobbyId)
+		// 	this.store.commit("refreshActiveTchatMessages");
 	}
 	handleReceivedMessage(data) {
 		data;
@@ -302,21 +297,21 @@ export default class WebSocketClient {
 	}
 
 	handleGetData(data) {
-		let { type, id } = data;
-		this.cache.create(id, type, data);
+		// let { type, id } = data;
+		// this.cache.create(id, type, data);
 	}
 
 	handleGetAllData(data) {
-		for (let i in data) this.handleData(data[i]);
+		// for (let i in data) this.handleData(data[i]);
 	}
 
 	handleUpdateData() {
-		let { type, id } = data;
-		this.cache.update(id, type, data);
+		// let { type, id } = data;
+		// this.cache.update(id, type, data);
 	}
 	handledeleteData() {
-		let { type, id } = data;
-		this.cache.delete(id, type, data);
+		// let { type, id } = data;
+		// this.cache.delete(id, type, data);
 	}
 
 	//===== NOTIFICATIONS ==========================================================
@@ -358,11 +353,11 @@ export default class WebSocketClient {
 	}
 
 	handledataUpdate(data) {
-		let { topic, value /*, oldValue */ } = data;
-		Vue.prototype.$app.$store.commit("setBD", {
-			type: "topics",
-			id: topic,
-			value: { id: topic, value },
-		});
+		// let { topic, value /*, oldValue */ } = data;
+		// Vue.prototype.$app.$store.commit("setBD", {
+		// 	type: "topics",
+		// 	id: topic,
+		// 	value: { id: topic, value },
+		// });
 	}
 }

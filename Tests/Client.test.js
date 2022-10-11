@@ -29,12 +29,12 @@ test("Client : Event", async () => {
 	const username = "username",
 		id = "lobbyId",
 		token = "theToken",
-		lobby = { id },
+		lobby = { id, token },
 		content = "messageContent",
 		message = { id: "messageId" },
 		type = "lobbys";
 
-    expect(server.collections.users.size).toBe(1);
+	expect(server.collections.users.size).toBe(1);
 
 	client.login(username);
 	await wait();
@@ -46,41 +46,71 @@ test("Client : Event", async () => {
 	await wait();
 	expect(user.username).toBe(username);
 	expect(server.collections.users.size).toBe(1);
-	
-    client.login(username);
-	await wait();
 
-    expect(server.collections.lobbys.size).toBe(0);
+	client.login(username);
+	await wait();
+	expect(server.collections.lobbys.size).toBe(0);
 
 	client.connectLobby(id, token);
 	await wait();
-    expect(server.collections.lobbys.size).toBe(1);
-    const lobbyServer = server.collections.lobbys.get(id)
-    user = server.collections.users.findUserWithSocket(client.socket)
-    expect(lobbyServer.getOwner()).toBe(user)
-    expect(lobbyServer.getUsers().length).toBe(1)
-    expect(user.lobbys.size).toBe(1)
+	expect(server.collections.lobbys.size).toBe(1);
+	let lobbyServerSide = server.collections.lobbys.get(id);
+	user = server.collections.users.findUserWithSocket(client.socket);
+	expect(lobbyServerSide.getOwner()).toBe(user);
+	expect(lobbyServerSide.getUsers().length).toBe(1);
+	expect(user.lobbys.size).toBe(1);
 
 	client.disconnectLobby(id, token);
 	await wait();
+	expect(server.collections.lobbys.size).toBe(1);
+	lobbyServerSide = server.collections.lobbys.get(id);
+	user = server.collections.users.findUserWithSocket(client.socket);
+	expect(lobbyServerSide.getOwner()).toBe(user);
+	expect(lobbyServerSide.getUsers().length).toBe(0);
+	expect(user.lobbys.size).toBe(0);
+	client.connectLobby(id, token);
+	await wait();
 
-	// client.sendMessage(lobby, content, token);
-	// await wait();
+	client.sendMessage(lobby.id, content, token);
+	await wait();
+	expect(server.collections.lobbys.size).toBe(1);
+	lobbyServerSide = server.collections.lobbys.get(id);
+	user = server.collections.users.findUserWithSocket(client.socket);
+	let messageServerSide = lobbyServerSide.messages.get(0);
+	expect(lobbyServerSide.messages.size).toBe(1);
+	expect(messageServerSide.content).toBe(content);
+	expect(messageServerSide.distributed[0]).toBe(user.getId());
 
-	// client.receivedMessage(lobby, message, token);
-	// await wait();
+	client.receivedMessage(lobby.id, 0, token);
+	await wait();
+	messageServerSide = lobbyServerSide.messages.get(0);
+	expect(messageServerSide.received[0]).toBe(user.getId());
+	expect(messageServerSide.distributed[0]).toBe(user.getId());
 
-	// client.viewedMessage(lobby, message, token);
-	// await wait();
+	// //TODO Token contenu dans le message ?
 
-	// client.typingMessage(lobby, token);
-	// await wait();
+	client.viewedMessage(lobby.id, 0, token);
+	await wait();
+	messageServerSide = lobbyServerSide.messages.get(0);
+	expect(client.lastEvent).toBe("viewed_message");
+	expect(messageServerSide.viewed[0]).toBe(user.getId());
 
-	// client.getData(id, type);
-	// await wait();
+	client.typingMessage(lobby.id, token);
+	await wait();
+	expect(client.lastEvent).toBe("typing_message");
 
-	// client.getAllData(token);
-	// await wait();
+	client.getData(id, type);
+	await wait();
+	expect(client.lastEvent).toBe("get_data");
+
+
+	client.getAllData(token);
+	await wait();
+	console.log(client.lastData)
+	expect(client.lastEvent).toBe("get_all_data");
+	// expect(client.lastEvent).toBe("get_all_data");
+	//TODO getInfos Renvoie trop d'inforamtion => alléger
+
 });
 
 test("Client : Handlers", async () => {
