@@ -213,7 +213,7 @@ class ObjectsManager extends Map {
 		else if (object.userIsPresent(user)) data = object.getPartialInfo();
 		else if (object.getVisibility()) data = object.getPublicInfo();
 		if (data) data.actions = this.getActions(id, user, token);
-		return JSON.stringify(data);
+		return data;
 	}
 
 	getInfos(user, token) {

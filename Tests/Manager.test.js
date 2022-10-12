@@ -149,19 +149,19 @@ test("Manager : getInfo", async () => {
 	object.addUser(user3);
 	expect(manager.getInfo(object.getId(), wrongUser, "wrongToken")).toBe(undefined);
 
-	const infoFromOwner = JSON.parse(manager.getInfo(object.getId(), goodUser));
+	const infoFromOwner = manager.getInfo(object.getId(), goodUser);
 	expect(infoFromOwner.token).toBe(object.getToken());
 	expect(infoFromOwner.data.test).toBe(object.test);
 	expect(infoFromOwner.data.test2).toBe(object.test2);
 
-	const infoFromUser = JSON.parse(manager.getInfo(object.getId(), user3));
+	const infoFromUser = manager.getInfo(object.getId(), user3);
 	expect(infoFromUser.token).toBe();
 	expect(infoFromUser.test).toBe();
 	expect(infoFromUser.createdAt).toBe(object.getCreatedAt());
 	expect(infoFromUser.users[0].id).toBe(user3.getId());
 
 	object.setVisibility(true);
-	const infoFromPublic = JSON.parse(manager.getInfo(object.getId(), wrongUser));
+	const infoFromPublic = manager.getInfo(object.getId(), wrongUser);
 
 	expect(infoFromPublic.id).toBe(object.getId());
 	expect(infoFromPublic.owner.id).toBe(object.getOwner().getId());

@@ -46,12 +46,12 @@ class ManageableObject {
 		for (let i in this) data[i] = this[i];
 
 		return {
+			type: this.constructor.name.toLowerCase() + "s",
 			id: this.getId(),
 			owner: this.getOwner().getPublicInfo(),
 			token: this.getToken(),
 			visibility: this.getVisibility(),
-			type: this.constructor.name.toLowerCase() + "s",
-			users: this.getUsers().map((x) => x.getPublicInfo()),
+			users: this.getUsers().map((x) => x.id),
 			createdAt: this.getCreatedAt(),
 			updatedAt: this.getUpdatedAt(),
 			data,
@@ -77,11 +77,11 @@ class ManageableObject {
 		}
 
 		data = {
+			type: this.constructor.name.toLowerCase() + "s",
 			id: this.getId(),
 			owner: this.getOwner().getPublicInfo(),
 			visibility: this.getVisibility(),
-			type: this.constructor.name.toLowerCase() + "s",
-			users: this.getUsers().map((x) => x.getPublicInfo()),
+			users: this.getUsers().map((x) => x.id),
 			createdAt: this.getCreatedAt(),
 			updatedAt: this.getUpdatedAt(),
 			data,
@@ -108,11 +108,11 @@ class ManageableObject {
 		}
 
 		data = {
+			type: this.constructor.name.toLowerCase() + "s",
 			id: this.getId(),
 			owner: this.getOwner().getPublicInfo(),
 			visibility: this.getVisibility(),
-			type: this.constructor.name.toLowerCase() + "s",
-			users: this.getUsers().map((x) => x.getPublicInfo()),
+			users: this.getUsers().map((x) => x.id),
 			createdAt: this.getCreatedAt(),
 			data,
 		};

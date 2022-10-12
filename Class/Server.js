@@ -239,14 +239,14 @@ class Server extends io.Server {
 	handleGetData(authUser, socket, data) {
 		let { id, type, token } = data;
 		let result = this.collections[type].getInfo(id, authUser, token);
-		authUser.emit("get_data", { type, data: result });
+		authUser.emit("get_data", JSON.stringify({ type, data: result }));
 	}
 
 	handleGetAllData(authUser, socket, data) {
 		console.log("get_all_data", data);
 		for (let type in this.collections) {
 			let result = this.collections[type].getInfos(authUser, data.token);
-			authUser.emit("get_all_data", { type, data: result });
+			authUser.emit("get_all_data", JSON.stringify({ type, data: result }));
 		}
 	}
 

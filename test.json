@@ -1,107 +1,57 @@
 {
-	"id": "lobbyId",
-	"owner": {
-		"id": "ac316408-2adb-4e80-ac48-ec8b0ee6b7d8",
-		"visibility": false,
-		"type": "users",
-		"data": { "username": "username" }
-	},
-	"token": "theToken",
-	"visibility": false,
 	"type": "lobbys",
-	"users": [
+	"data": [
 		{
-			"id": "ac316408-2adb-4e80-ac48-ec8b0ee6b7d8",
-			"visibility": false,
-			"type": "users",
-			"data": { "username": "username" }
-		}
-	],
-	"createdAt": 1665522713140,
-	"updatedAt": 1665522713140,
-	"data": {
-		"lobby": { "id": "lobbyId", "token": "theToken" },
-		"messages": [
-			{
-				"id": 0,
-				"owner": {
-					"id": "ac316408-2adb-4e80-ac48-ec8b0ee6b7d8",
-					"visibility": false,
-					"type": "users",
-					"data": { "username": "username" }
-				},
+			"type": "lobbys",
+			"id": "lobbyId",
+			"owner": {
+				"id": "11a791af-c8a3-488b-b672-4a6e3cdfe350",
 				"visibility": false,
-				"type": "messages",
-				"users": [],
-				"createdAt": 1665522713516,
-				"updatedAt": 1665522713516,
-				"data": {
-					"content": "messageContent",
-					"lobby": {
-						"lobby": { "id": "lobbyId", "token": "theToken" },
-						"messages": {
-							"adminsId": [],
-							"actionsByRight": {
-								"owner": [
-									"setId",
-									"setOwner",
-									"setToken",
-									"setVisibility",
-									"addUser",
-									"addUsers",
-									"deleteUser",
-									"deleteUsers",
-									"update"
-								],
-								"token": [
-									"setVisibility",
-									"addUser",
-									"addUsers",
-									"deleteUser",
-									"deleteUsers",
-									"update"
-								],
-								"users": ["addUser", "addUsers"]
-							}
-						}
-					},
-					"distributed": ["ac316408-2adb-4e80-ac48-ec8b0ee6b7d8"],
-					"received": ["ac316408-2adb-4e80-ac48-ec8b0ee6b7d8"],
-					"viewed": ["ac316408-2adb-4e80-ac48-ec8b0ee6b7d8"]
-				},
-				"lobby": {
-					"id": "lobbyId",
-					"owner": {
-						"id": "ac316408-2adb-4e80-ac48-ec8b0ee6b7d8",
-						"visibility": false,
-						"type": "users",
-						"data": { "username": "username" }
-					},
-					"visibility": false,
-					"type": "lobbys",
-					"users": [
-						{
-							"id": "ac316408-2adb-4e80-ac48-ec8b0ee6b7d8",
+				"type": "users",
+				"data": { "username": "username" }
+			},
+			"token": "theToken",
+			"visibility": false,
+			"users": [null],
+			"createdAt": 1665566607022,
+			"updatedAt": 1665566607022,
+			"data": {
+				"lobby": { "id": "lobbyId", "token": "theToken" },
+				"messages": [
+					{
+						"type": "messages",
+						"id": 0,
+						"owner": {
+							"id": "11a791af-c8a3-488b-b672-4a6e3cdfe350",
 							"visibility": false,
 							"type": "users",
 							"data": { "username": "username" }
-						}
-					],
-					"createdAt": 1665522713140,
-					"data": {}
-				}
-			}
-		]
-	},
-	"actions": [
-		"setId",
-		"setOwner",
-		"setToken",
-		"setVisibility",
-		"addUser",
-		"addUsers",
-		"deleteUser",
-		"deleteUsers",
-		"update"
+						},
+						"visibility": false,
+						"users": [],
+						"createdAt": 1665566607396,
+						"updatedAt": 1665566607396,
+						"data": {
+							"content": "messageContent",
+							"distributed": ["11a791af-c8a3-488b-b672-4a6e3cdfe350"],
+							"received": ["11a791af-c8a3-488b-b672-4a6e3cdfe350"],
+							"viewed": ["11a791af-c8a3-488b-b672-4a6e3cdfe350"]
+						},
+						"lobby": { "id": "lobbyId" }
+					}
+				]
+			},
+			"actions": [
+				"setId",
+				"setOwner",
+				"setToken",
+				"setVisibility",
+				"addUser",
+				"addUsers",
+				"deleteUser",
+				"deleteUsers",
+				"update"
+			]
+		}
 	]
 }

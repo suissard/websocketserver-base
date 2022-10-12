@@ -60,19 +60,19 @@ class Message extends ManageableObject {
 	getPartialProperty() {
 		return super
 			.getPartialProperty()
-			.concat(["content", "lobby", "replied", "distributed", "received", "viewed"]);
+			.concat(["content", "replied", "distributed", "received", "viewed"]);
 	}
 	getPartialInfo() {
 		return {
 			...super.getPartialInfo(),
-			lobby: this.lobby.getPublicInfo(),
+			lobby: { id: this.lobby.getId() },
 		};
 	}
 
 	getPublicInfo() {
 		return {
 			...super.getPublicInfo(),
-			lobby: this.lobby.getPublicInfo(),
+			lobby: { id: this.lobby.getId() },
 		};
 	}
 }
