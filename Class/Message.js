@@ -63,17 +63,15 @@ class Message extends ManageableObject {
 			.concat(["content", "replied", "distributed", "received", "viewed"]);
 	}
 	getPartialInfo() {
-		return {
-			...super.getPartialInfo(),
-			lobby: { id: this.lobby.getId() },
-		};
+		let data = super.getPartialInfo();
+		data.data = { lobby: { id: this.lobby.getId() }, ...data.data };
+		return data;
 	}
 
 	getPublicInfo() {
-		return {
-			...super.getPublicInfo(),
-			lobby: { id: this.lobby.getId() },
-		};
+		let data = super.getPublicInfo();
+		data.data = { lobby: { id: this.lobby.getId() }, ...data.data };
+		return data;
 	}
 }
 

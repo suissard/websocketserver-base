@@ -87,8 +87,6 @@ test("Client : Event", async () => {
 	expect(messageServerSide.received[0]).toBe(user.getId());
 	expect(messageServerSide.distributed[0]).toBe(user.getId());
 
-	// //TODO Token contenu dans le message ?
-
 	client.viewedMessage(lobby.id, 0, token);
 	await wait();
 	messageServerSide = lobbyServerSide.messages.get(0);
@@ -103,16 +101,12 @@ test("Client : Event", async () => {
 	await wait();
 	expect(client.lastEvent).toBe("get_data");
 
-
 	client.getAllData(token);
 	await wait();
-	console.log(client.lastData)
 	expect(client.lastEvent).toBe("get_all_data");
-	// expect(client.lastEvent).toBe("get_all_data");
-	//TODO getInfos Renvoie trop d'inforamtion => alléger
-	// TODO getAllData devrait répondre une simple suite de get_data
-
 });
+
+	// //TODO Token contenu dans le message ?
 
 test("Client : Handlers", async () => {
 	//tester les differents handlers

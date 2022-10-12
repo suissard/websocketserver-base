@@ -5,16 +5,16 @@
 			"type": "lobbys",
 			"id": "lobbyId",
 			"owner": {
-				"id": "11a791af-c8a3-488b-b672-4a6e3cdfe350",
+				"id": "3670214b-a3e3-401c-b963-74c2961ff50a",
 				"visibility": false,
 				"type": "users",
 				"data": { "username": "username" }
 			},
 			"token": "theToken",
 			"visibility": false,
-			"users": [null],
-			"createdAt": 1665566607022,
-			"updatedAt": 1665566607022,
+			"users": ["3670214b-a3e3-401c-b963-74c2961ff50a"],
+			"createdAt": 1665568800358,
+			"updatedAt": 1665568800358,
 			"data": {
 				"lobby": { "id": "lobbyId", "token": "theToken" },
 				"messages": [
@@ -22,22 +22,22 @@
 						"type": "messages",
 						"id": 0,
 						"owner": {
-							"id": "11a791af-c8a3-488b-b672-4a6e3cdfe350",
+							"id": "3670214b-a3e3-401c-b963-74c2961ff50a",
 							"visibility": false,
 							"type": "users",
 							"data": { "username": "username" }
 						},
 						"visibility": false,
 						"users": [],
-						"createdAt": 1665566607396,
-						"updatedAt": 1665566607396,
+						"createdAt": 1665568800733,
+						"updatedAt": 1665568800733,
 						"data": {
+							"lobby": { "id": "lobbyId" },
 							"content": "messageContent",
-							"distributed": ["11a791af-c8a3-488b-b672-4a6e3cdfe350"],
-							"received": ["11a791af-c8a3-488b-b672-4a6e3cdfe350"],
-							"viewed": ["11a791af-c8a3-488b-b672-4a6e3cdfe350"]
-						},
-						"lobby": { "id": "lobbyId" }
+							"distributed": ["3670214b-a3e3-401c-b963-74c2961ff50a"],
+							"received": ["3670214b-a3e3-401c-b963-74c2961ff50a"],
+							"viewed": ["3670214b-a3e3-401c-b963-74c2961ff50a"]
+						}
 					}
 				]
 			},
