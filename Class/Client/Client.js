@@ -26,10 +26,16 @@ export default class WebSocketClient {
 			get_data: this.handleGetData,
 			get_all_data: this.handleGetAllData,
 			update_data: this.handleUpdateData,
+			delete_data: this.handleDeleteData,
+
+			success: this.handleSuccess,
+			error: this.handleError,
+			warning: this.handleWarning,
+			info: this.handleInfo,
+
 		};
 
 		this.handlers = handlers;
-		this.eventNotifs = ["success", "error", "info", "warning"];
 		this.connectSocket();
 		// this.setListeners(this.nativeListeners, handlers);
 	}
@@ -115,8 +121,8 @@ export default class WebSocketClient {
 	/**
 	 * Met a jour le localstorage en fonction des données fournit
 	 */
-	save(data = {}) {
-		console.log("saveData");
+	saveUserData(data = {}) {
+		console.log("saveUserData");
 		// this.store.commit("setUser", data);
 		// for (let i in data) localStorage.setItem(i, data[i]);
 	}
@@ -237,12 +243,13 @@ export default class WebSocketClient {
 	async getAllData(token) {
 		await this.socket.emit("get_all_data", { token });
 	}
+
 	// ======= REACTIONS AUX EVENTS ====================================================================
 	/**
 	 * Reception d'un evenement login
 	 */
 	handleLogin(data) {
-		this.save(data);
+		this.saveUserData(data);
 		// this.store.commit("connexion", true);
 
 		// if (username != localUserName && token != localToken) this.login(this.username, this.token);
@@ -253,7 +260,7 @@ export default class WebSocketClient {
 	handleDisconnect() {}
 
 	handleUpdateUser(data) {
-		this.save(data);
+		this.saveUserData(data);
 	}
 
 	handleConnectLobby(data) {
@@ -262,22 +269,6 @@ export default class WebSocketClient {
 	}
 
 	handleDisconnectLobby() {}
-
-	handleData(data) {
-		// data.type = data.type.split("/");
-		// let type = data.type.shift();
-		// let id = data.type.shift();
-		// if (type == "users") {
-		// 	if (id) this.data.setUser(data.data);
-		// 	else this.data.setUsers(data.data);
-		// } else if (type == "lobbys") {
-		// 	if (id) this.data.setLobby(data.data);
-		// 	else this.data.setLobbys(data.data);
-		// } else if (type == "messages") {
-		// 	if (id) this.data.setMessage(data.data);
-		// 	else this.data.setMessages(data.data);
-		// }
-	}
 
 	//===== TCHAT ==================================================================
 	handleSendMessage(data) {
@@ -296,6 +287,8 @@ export default class WebSocketClient {
 		data;
 	}
 
+
+	// GESTION DES DON2NE
 	handleGetData(data) {
 		// let { type, id } = data;
 		// this.cache.create(id, type, data);
@@ -309,55 +302,33 @@ export default class WebSocketClient {
 		// let { type, id } = data;
 		// this.cache.update(id, type, data);
 	}
-	handledeleteData() {
+	handleDeleteData() {
 		// let { type, id } = data;
 		// this.cache.delete(id, type, data);
 	}
 
 	//===== NOTIFICATIONS ==========================================================
-	handlesuccess(data) {
-		console.log("success", data);
-		// Vue.prototype.$app.notif({
-		// 	title: data.title,
-		// 	type: "success",
-		// 	timer: data.timer ? data.timer : 5,
-		// 	message: data.message ? data.message : undefined,
-		// });
-	}
-	handleerror(data) {
-		console.error("Error", data);
-		// Vue.prototype.$app.notif({
-		// 	title: data.title,
-		// 	type: "error",
-		// 	timer: data.timer ? data.timer : 5,
-		// 	message: data.message ? data.message : undefined,
-		// });
-	}
-	handlewarning(data) {
-		console.warn("warning", data);
-		// Vue.prototype.$app.notif({
-		// 	title: data.title,
-		// 	type: "warning",
-		// 	timer: data.timer ? data.timer : 5,
-		// 	message: data.message ? data.message : undefined,
-		// });
-	}
-	handleinfo(data) {
-		console.info("info", data);
-		// Vue.prototype.$app.notif({
-		// 	title: data.title,
-		// 	type: "info",
-		// 	timer: data.timer ? data.timer : 5,
-		// 	message: data.message ? data.message : undefined,
-		// });
+	
+	/**
+	 * Fonction de notification relié a l'application
+	 * @param {String} type 
+	 * @param {Object} data Donnée 
+	 */
+	notifToApp(type, data) {
+		console.log(type, data);
+		throw new Error("This function must be overcharged");
 	}
 
-	handledataUpdate(data) {
-		// let { topic, value /*, oldValue */ } = data;
-		// Vue.prototype.$app.$store.commit("setBD", {
-		// 	type: "topics",
-		// 	id: topic,
-		// 	value: { id: topic, value },
-		// });
+	handleSuccess(data) {
+		this.notifToApp("success", data);
+	}
+	handleError(data) {
+		this.notifToApp("error", data);
+	}
+	handleWarning(data) {
+		this.notifToApp("warning", data);
+	}
+	handleInfo(data) {
+		this.notifToApp("info", data);
 	}
 }

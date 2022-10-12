@@ -27,8 +27,8 @@ class ManageableObject {
 		this.setVisibility(visibility);
 		this.setUsers(users);
 
-		this.setCreatedAt(createdAt || Date.now())
-		this.setUpdatedAt(updatedAt || Date.now())
+		this.setCreatedAt(createdAt || Date.now());
+		this.setUpdatedAt(updatedAt || Date.now());
 
 		for (let i in data) {
 			if (this[i]) throw new Error(`"${i}" already exist in ${this.constructor.name}`);
@@ -51,7 +51,9 @@ class ManageableObject {
 			owner: this.getOwner().getPublicInfo(),
 			token: this.getToken(),
 			visibility: this.getVisibility(),
-			users: this.getUsers().map((x) => x.getId()),
+			users: this.getUsers().map((x) => {
+				return { id: x.getId() };
+			}),
 			createdAt: this.getCreatedAt(),
 			updatedAt: this.getUpdatedAt(),
 			data,
@@ -81,7 +83,9 @@ class ManageableObject {
 			id: this.getId(),
 			owner: this.getOwner().getPublicInfo(),
 			visibility: this.getVisibility(),
-			users: this.getUsers().map((x) => x.getId()),
+			users: this.getUsers().map((x) => {
+				return { id: x.getId() };
+			}),
 			createdAt: this.getCreatedAt(),
 			updatedAt: this.getUpdatedAt(),
 			data,
@@ -112,7 +116,9 @@ class ManageableObject {
 			id: this.getId(),
 			owner: this.getOwner().getPublicInfo(),
 			visibility: this.getVisibility(),
-			users: this.getUsers().map((x) => x.getId()),
+			users: this.getUsers().map((x) => {
+				return { id: x.getId() };
+			}),
 			createdAt: this.getCreatedAt(),
 			data,
 		};

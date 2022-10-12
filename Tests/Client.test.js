@@ -17,7 +17,6 @@ test("Client : Basics", async () => {
 	client = new WebSocketClient(undefined, WebSocketPort);
 	await wait();
 
-	// console.log("client", client.socket);
 	expect(server.collections.users.size).toBe(2);
 	client.socket.emit("logout");
 	await wait();
@@ -106,7 +105,7 @@ test("Client : Event", async () => {
 	expect(client.lastEvent).toBe("get_all_data");
 });
 
-	// //TODO Token contenu dans le message ?
+	// TODO Token contenu dans le message ?
 
 test("Client : Handlers", async () => {
 	//tester les differents handlers
