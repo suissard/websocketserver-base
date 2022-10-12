@@ -32,7 +32,6 @@ export default class WebSocketClient {
 			error: this.handleError,
 			warning: this.handleWarning,
 			info: this.handleInfo,
-
 		};
 
 		this.handlers = handlers;
@@ -49,7 +48,6 @@ export default class WebSocketClient {
 		let socket = await io(this.url, { cors: { origins: "*" } });
 		this.socket = socket;
 		this.timeoutConnexion(); //TODO verification régulière ?
-		this.restore();
 		this.login();
 		this.socket.on("connect_error", () => {
 			// console.log('ERROR', err)
@@ -104,73 +102,29 @@ export default class WebSocketClient {
 		setTimeout(() => {
 			if (this.socket && this.socket.connected) return;
 			this.socket = undefined;
-			// this.store.commit("connexion", false);
-			// this.store.commit("error", true);
-			// this.store.commit("setUser", { username: "ERROR" });
+			this.notifToApp("error", {title: "Connexion impossible",message: "Le serveur ne repond pas"})
 
-			// Vue.prototype.$app.notif({
-			// 	title: "Connexion impossible",
-			// 	timer: 5,
-			// 	type: "error",
-			// 	message: "Le serveur ne repond pas",
-			// });
 		}, timer);
 	}
 
-	//TODO Communication avec le localStorage ================================
-	/**
-	 * Met a jour le localstorage en fonction des données fournit
-	 */
-	saveUserData(data = {}) {
-		console.log("saveUserData");
-		// this.store.commit("setUser", data);
-		// for (let i in data) localStorage.setItem(i, data[i]);
-	}
-
-	/**
-	 * Supprime le local storage et les variables du composant
-	 */
-	clear() {
-		// localStorage.removeItem("id");
-		// localStorage.removeItem("username");
-		// localStorage.removeItem("token");
-		// this.store.commit("setUser", {});
-	}
-
-	/**
-	 * Charge les données username et token stocké en local Storage
-	 */
-	restore() {
-		// let localId = localStorage.getItem("id"),
-		// 	localUserName = localStorage.getItem("username"),
-		// 	localToken = localStorage.getItem("token"),
-		// 	id,
-		// 	username,
-		// 	token;
-		// if (!localId || localId == "null") id = localId;
-		// if (!localUserName || localUserName == "null") username = localUserName;
-		// if (!localToken || localToken == "null") token = localToken;
-		// this.store.commit("setUser", { id, username, token });
-	}
-
 	// ======= EMETRE DES EVENTS ====================================================================
+	/**
+	 * Met a jour les donnée de l'utilisateur en provenance du serveur
+	 */
+	 saveUserData(data = {}) {
+		console.log("saveUserData");
+		throw new Error("This function must be overcharged");
+
+	}
 
 	/**
 	 * Envoie une requete de login avec priorité au données en local si pas d'argument fournit
 	 */
 	login(username, token) {
-		// if (!username) username = localStorage.getItem("username");
-		// if (!token) token = localStorage.getItem("token");
-		// // this.socket.emit("Login", { username, token });
-		// console.log("login", username);
 		this.socket.emit("login", { username, token });
 	}
 
 	logout() {
-		// this.socket.disconnect(true);
-		// this.socket = undefined;
-		// let username, token;
-		// this.store.commit("setUser", { username, token });
 		this.socket.emit("logout");
 	}
 
@@ -250,9 +204,6 @@ export default class WebSocketClient {
 	 */
 	handleLogin(data) {
 		this.saveUserData(data);
-		// this.store.commit("connexion", true);
-
-		// if (username != localUserName && token != localToken) this.login(this.username, this.token);
 	}
 
 	handleLogout() {}
@@ -263,56 +214,70 @@ export default class WebSocketClient {
 		this.saveUserData(data);
 	}
 
-	handleConnectLobby(data) {
-		// this.data.setLobby(data);
-		// this.store.commit("refreshActiveTchatMessages");
-	}
-
+	handleConnectLobby(data) {}
 	handleDisconnectLobby() {}
 
 	//===== TCHAT ==================================================================
-	handleSendMessage(data) {
-		// this.data.setMessage(data);
-		// if (this.store.state.activeTchatLobbyId == data.lobbyId)
-		// 	this.store.commit("refreshActiveTchatMessages");
-	}
-	handleReceivedMessage(data) {
-		data;
-	}
-	handleViewedMessage(data) {
-		data;
+	handleSendMessage(data) {}
+	handleReceivedMessage(data) {}
+	handleViewedMessage(data) {}
+	handleTypingMessage(data) {}
+
+	// GESTION DES DONNEES ============================================================
+	/**
+	 * Fonction de sauvegarde des données recu, relié a l'application ( a surcharger)
+	 * @param {String} id
+	 * @param {String} type
+	 * @param {Object} value Donnée
+	 */
+	saveData(id, type, value) {
+		throw new Error("This function must be overcharged");
 	}
 
-	handleTypingMessage(data) {
-		data;
+	/**
+	 * Fonction d'update des données recu, relié a l'application ( a surcharger)
+	 * @param {String} id
+	 * @param {String} type
+	 * @param {Object} value Donnée
+	 */
+	updateData(id, type, value) {
+		throw new Error("This function must be overcharged");
+	}
+	/**
+	 * Fonction de suppression des données recu, relié a l'application ( a surcharger)
+	 * @param {String} id
+	 * @param {String} type
+	 * @param {Object} value Donnée
+	 */
+	deleteData(id, type, value) {
+		throw new Error("This function must be overcharged");
 	}
 
-
-	// GESTION DES DON2NE
+	//=====================================================================================
 	handleGetData(data) {
-		// let { type, id } = data;
-		// this.cache.create(id, type, data);
+		let { type, id } = data;
+		this.saveData(id, type, data);
 	}
 
 	handleGetAllData(data) {
-		// for (let i in data) this.handleData(data[i]);
+		for (let i in data) this.handleGetData(data[i]);
 	}
 
-	handleUpdateData() {
-		// let { type, id } = data;
-		// this.cache.update(id, type, data);
+	handleUpdateData(data) {
+		let { type, id } = data;
+		this.updateData(id, type, data);
 	}
-	handleDeleteData() {
-		// let { type, id } = data;
-		// this.cache.delete(id, type, data);
+	handleDeleteData(data) {
+		let { type, id } = data;
+		this.deleteData(id, type, data);
 	}
 
 	//===== NOTIFICATIONS ==========================================================
-	
+
 	/**
-	 * Fonction de notification relié a l'application
-	 * @param {String} type 
-	 * @param {Object} data Donnée 
+	 * Fonction de notification relié a l'application ( a surcharger)
+	 * @param {String} type
+	 * @param {Object} data Donnée
 	 */
 	notifToApp(type, data) {
 		console.log(type, data);

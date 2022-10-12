@@ -15,6 +15,11 @@ test("Client : Basics", async () => {
 	WebSocketPort = serverData.WebSocketPort;
 
 	client = new WebSocketClient(undefined, WebSocketPort);
+	client.saveData = ()=>{}
+	client.saveUserData = ()=>{}
+	client.updateData = ()=>{}
+	client.deleteData = ()=>{}
+	client.notifToApp = ()=>{}
 	await wait();
 
 	expect(server.collections.users.size).toBe(2);
