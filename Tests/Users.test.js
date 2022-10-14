@@ -47,6 +47,7 @@ test("User : Infos", async () => {
 
 	expect(userServerSide.getPrivateInfo()).toEqual({
 		id: userServerSide.getId(),
+		level: "private",
 		owner: userServerSide.getOwner().getPublicInfo(),
 		token: userServerSide.getToken(),
 		visibility: userServerSide.getVisibility(),
@@ -62,6 +63,7 @@ test("User : Infos", async () => {
 
 	expect(userServerSide.getPartialInfo()).toEqual({
 		id: userServerSide.getId(),
+		level: "partial",
 		owner: userServerSide.getOwner().getPublicInfo(),
 		visibility: userServerSide.getVisibility(),
 		type: userServerSide.constructor.name.toLowerCase() + "s",
@@ -76,6 +78,7 @@ test("User : Infos", async () => {
 	expect(userServerSide.getPublicInfo()).toEqual({
 		data: { username: userServerSide.username },
 		id: userServerSide.getId(),
+		level: "public",
 		visibility: userServerSide.getVisibility(),
 		type: userServerSide.constructor.name.toLowerCase() + "s",
 	});

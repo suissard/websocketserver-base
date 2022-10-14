@@ -5,18 +5,18 @@ const ManageableObject = require("./ManageableObject.js");
 /**
  * Permet de gerer une collection d'object en servant d'intermediaire, pour limiter es acces en fonction des droits utilisateurs
  * @param {Array} adminsId tableau des id des différents administrateurs (fullAccess)
- * @param {Array} actionsByRight tableau des id des différents administrateurs (fullAccess)
+ * @param {Array} permissions tableau des id des différents administrateurs (fullAccess)
  * @param {Class} constructor Class permettant de construire les objects
  * @returns {ObjectsManager}
  */
 class ObjectsManager extends Map {
-	constructor(adminsId = [], actionsByRight, constructor = ManageableObject) {
+	constructor(adminsId = [], permissions, constructor = ManageableObject) {
 		super();
 		this.setConstructor(constructor);
 
 		this.adminsId = adminsId;
-		this.actionsByRight;
-		this.setActionsByRights(actionsByRight);
+		this.permissions;
+		this.setPermissions(permissions);
 	}
 	/**
 	 * Renvoie le constructor des object du manager
@@ -46,10 +46,10 @@ class ObjectsManager extends Map {
 	 * Récuperer les actions disponibles en fonction des droits utilisateurs
 	 * @returns {Array}
 	 */
-	getActionsByRights() {
+	getPermissions() {
 		throw new Error("This function must be overcharge");
 	}
-	setActionsByRights(
+	setPermissions(
 		actions = {
 			owner: [
 				"setId",
@@ -73,7 +73,7 @@ class ObjectsManager extends Map {
 			users: ["addUser", "addUsers"],
 		}
 	) {
-		this.actionsByRight = actions;
+		this.permissions = actions;
 	}
 	/**
 	 * Générer un token d'authentication
@@ -187,9 +187,9 @@ class ObjectsManager extends Map {
 			for (let i in vals) if (!result.includes(vals[i])) result.push(vals[i]);
 		};
 
-		if (object.userIsOwner(user)) pushIfUnique(this.actionsByRight.owner);
-		if (object.tokenGrantAccess(token)) pushIfUnique(this.actionsByRight.token);
-		if (object.userIsPresent(user)) pushIfUnique(this.actionsByRight.users);
+		if (object.userIsOwner(user)) pushIfUnique(this.permissions.owner);
+		if (object.tokenGrantAccess(token)) pushIfUnique(this.permissions.token);
+		if (object.userIsPresent(user)) pushIfUnique(this.permissions.users);
 		return result;
 	}
 
