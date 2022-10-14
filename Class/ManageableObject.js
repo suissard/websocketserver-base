@@ -48,6 +48,7 @@ class ManageableObject {
 		return {
 			type: this.constructor.name.toLowerCase() + "s",
 			id: this.getId(),
+			level: "private",
 			owner: this.getOwner().getPublicInfo(),
 			token: this.getToken(),
 			visibility: this.getVisibility(),
@@ -81,6 +82,7 @@ class ManageableObject {
 		data = {
 			type: this.constructor.name.toLowerCase() + "s",
 			id: this.getId(),
+			level: "partial",
 			owner: this.getOwner().getPublicInfo(),
 			visibility: this.getVisibility(),
 			users: this.getUsers().map((x) => {
@@ -114,6 +116,7 @@ class ManageableObject {
 		data = {
 			type: this.constructor.name.toLowerCase() + "s",
 			id: this.getId(),
+			level: "public",
 			owner: this.getOwner().getPublicInfo(),
 			visibility: this.getVisibility(),
 			users: this.getUsers().map((x) => {

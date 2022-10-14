@@ -166,6 +166,7 @@ class User extends ManageableObject {
 	getPublicInfo() {
 		return {
 			id: this.getId(),
+			level: "public",
 			visibility: this.getVisibility(),
 			type: this.constructor.name.toLowerCase() + "s",
 			data: { username: this.username },
