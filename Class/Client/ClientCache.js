@@ -1,7 +1,8 @@
 import { EventEmitter } from 'node:events';
 import ClientCacheCollection from './ClientCacheCollection.js'
 /**
- * System de cache pour le Client
+ * System de cache pour le Client basé sur des evenements
+ * EVENTS : createData, updateData, deleteData
  */
 export default class ClientCache extends EventEmitter {
 	create(id, type, data) {
