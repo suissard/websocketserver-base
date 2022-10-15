@@ -111,14 +111,24 @@ test("Client : Event", async () => {
 });
 
 
+//tester les differents handlers
 test("Client : Handlers", async () => {
-	client.cache.deleteUserData();
-	//tester les differents handlers
-	// client.handleLogin;
-	// client.handleLogout;
-	// client.handleDisconnect;
-	// client.handleConnectLobby;
-	// client.handleDisconnectLobby;
+	const lobbyId = "lobbyId", lobbyToken = "lobbyToken" 
+	
+
+	client.connectLobby(lobbyId, lobbyToken);// client.handleConnectLobby;
+	await wait();
+	let userData = client.getMe()
+	expect(userData.data.lobbys[0]).toBe(lobbyId);
+	expect(client.cache.collections.lobbys.get(lobbyId).level).toBe("private");
+	expect(client.cache.collections.lobbys.get(lobbyId).id).toBe(lobbyId);
+
+	client.disconnectLobby(lobbyId, lobbyToken);// client.handleDisconnectLobby;
+	await wait();
+	expect(userData.data.lobbys.length).toBe(0);
+	expect(client.cache.collections.lobbys.get(lobbyId).level).toBe("public");
+	
+	
 	// client.handleSendMessage;
 	// client.handleReceivedMessage;
 	// client.handleViewedMessage;

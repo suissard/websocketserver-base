@@ -256,24 +256,26 @@ export default class WebSocketClient {
 			userData.data.lobbys.push(data.id);
 	}
 
+	/**
+	 * Recupération des nouvelles données de lobby et modifier la liste des lobby de l'utilisateur
+	 * @param {*} data
+	 */
 	handleDisconnectLobby(data) {
-		// modifier la liste des lobbys utilisateur
-		// modifier le lobby
-		// modifier le lobby
 		this.cache.update(data.id, data.type, data);
-
-		// modifier la liste des lobbys utilisateur
 		let userData = this.getMe();
-		if (userData && !userData?.data.lobbys?.includes(data.id))
-			userData.data.lobbys.splice(userData.data.lobbys.findIndex(data.id),1);
-
-			userData = this.getMe();
-			userData = this.getMe();
-
-		}
+		if (userData && userData?.data.lobbys?.includes(data.id))
+			userData.data.lobbys.splice(
+				userData.data.lobbys.findIndex((x) => x.id == data.id),
+				1
+			);
+	}
 
 	//===== TCHAT ==================================================================
-	handleSendMessage(data) {}
+	handleSendMessage(data) {
+		// ajouter object message
+		//modifier lobby
+		this.cache.update(data.id, data.type, data);
+	}
 
 	handleReceivedMessage(data) {}
 

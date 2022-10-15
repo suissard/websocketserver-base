@@ -69,6 +69,7 @@ class Lobby extends ManageableObject {
 		this.deleteUser(user);
 		user.lobbys.delete(this.getId(), this);
 		this.emitToAll("disconnect_lobby", this.getPublicInfo());
+		user.emit("disconnect_lobby", this.getPublicInfo());
 	}
 
 	/**
