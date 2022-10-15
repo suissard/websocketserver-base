@@ -110,7 +110,6 @@ test("Client : Event", async () => {
 	expect(client.lastEvent).toBe("get_all_data");
 });
 
-// TODO Token contenu dans le message ?
 
 test("Client : Handlers", async () => {
 	client.cache.deleteUserData();

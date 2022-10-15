@@ -41,7 +41,6 @@ export default class WebSocketClient {
 
 		this.handlers = handlers;
 		this.connectSocket(token);
-
 	}
 
 	setToken(token) {
@@ -50,8 +49,8 @@ export default class WebSocketClient {
 			configurable: true,
 			value: () => token,
 		});
-		let func =  this.socket.emit.bind(this.socket)
-		this.socket.emit = (event, data)=> func(event, {...data, token} );
+		let func = this.socket.emit.bind(this.socket);
+		this.socket.emit = (event, data) => func(event, { ...data, token });
 	}
 
 	getToken() {
@@ -143,15 +142,6 @@ export default class WebSocketClient {
 
 	// ======= EMETRE DES EVENTS ====================================================================
 	/**
-	 * Met a jour les donnée de l'utilisateur en provenance du serveur
-	 */
-	saveUserData(data = {}) {
-		console.log("saveUserData");
-		throw new Error("This function must be overcharged");
-	}
-
-	deleteUserData() {}
-	/**
 	 * Envoie une requete de login avec priorité au données en local si pas d'argument fournit
 	 */
 	login(username, token) {
@@ -239,30 +229,48 @@ export default class WebSocketClient {
 	handleLogin(data) {
 		let { id, type, token } = data;
 		this.setToken(token);
-		this.setMe(data)
+		this.setMe(data);
 		this.cache.create(id, type, data);
 	}
 
+	/**
+	 * Supprimer les données utilisateurs et les données private et partial
+	 */
 	handleLogout() {
-		// Supprimer les données utilisateurs private et partial
-		let userData = this.getMe()
-
+		let userData = this.getMe();
 		this.cache.delete(userData.id, "users");
+		this.cache.deleteUserData();
 	}
 
-	handleUpdateUser(data) {
-		this.saveUserData(data);
-	}
-
+	/**
+	 * Recupération des nouvelles données de lobby et modifier la liste des lobby de l'utilisateur
+	 * @param {*} data
+	 */
 	handleConnectLobby(data) {
-		// modifier la liste des lobbys utilisateur
 		// modifier le lobby
+		this.cache.update(data.id, data.type, data);
+
+		// modifier la liste des lobbys utilisateur
+		let userData = this.getMe();
+		if (userData && !userData?.data.lobbys?.includes(data.id))
+			userData.data.lobbys.push(data.id);
 	}
 
-	handleDisconnectLobby() {
+	handleDisconnectLobby(data) {
 		// modifier la liste des lobbys utilisateur
 		// modifier le lobby
-	}
+		// modifier le lobby
+		this.cache.update(data.id, data.type, data);
+
+		// modifier la liste des lobbys utilisateur
+		let userData = this.getMe();
+		if (userData && !userData?.data.lobbys?.includes(data.id))
+			userData.data.lobbys.splice(userData.data.lobbys.findIndex(data.id),1);
+
+			userData = this.getMe();
+			userData = this.getMe();
+
+		}
 
 	//===== TCHAT ==================================================================
 	handleSendMessage(data) {}
@@ -272,7 +280,6 @@ export default class WebSocketClient {
 	handleViewedMessage(data) {}
 
 	handleTypingMessage(data) {}
-
 
 	//=====================================================================================
 	handleGetData(data) {
