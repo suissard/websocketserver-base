@@ -1,8 +1,10 @@
+import ClientCacheObject from "./ClientCacheObject.js";
 /**
  * System de cache pour le Client
  */
 export default class ClientCacheCollection extends Map {
 	constructor(clientCache, type) {
+		super();
 		Object.defineProperty(this, "getType", {
 			enumerable: false,
 			configurable: false,
@@ -24,19 +26,16 @@ export default class ClientCacheCollection extends Map {
 		throw new Error("getClientCache must be overcharged");
 	}
 
-	// set(id, value) {
-	// 	super.set(id, value);
-	// 	this.getClientCache().emit("setData", { id, type: this.getType(), value });
-	// }
-
 	create(id, value) {
-		super.set(id, value);
-		this.getClientCache().emit("createData", { id, type: this.getType(), value });
+		let data = new ClientCacheObject(value);
+		super.set(id, data);
+		this.getClientCache().emit("createData", { id, type: this.getType(), data });
 	}
 
-	uddate(id, value) {
-		super.set(id, value);
-		this.getClientCache().emit("updateData", { id, type: this.getType(), value });
+	update(id, value) {
+		let data = new ClientCacheObject(value);
+		super.set(id, data);
+		this.getClientCache().emit("updateData", { id, type: this.getType(), data });
 	}
 
 	delete(id) {

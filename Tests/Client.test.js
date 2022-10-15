@@ -15,11 +15,11 @@ test("Client : Basics", async () => {
 	WebSocketPort = serverData.WebSocketPort;
 
 	client = new WebSocketClient(undefined, WebSocketPort);
-	client.saveData = ()=>{}
-	client.saveUserData = ()=>{}
-	client.updateData = ()=>{}
-	client.deleteData = ()=>{}
-	client.notifToApp = ()=>{}
+	client.saveData = () => {};
+	client.saveUserData = () => {};
+	client.updateData = () => {};
+	client.deleteData = () => {};
+	client.notifToApp = () => {};
 	await wait();
 
 	expect(server.collections.users.size).toBe(2);
@@ -110,9 +110,10 @@ test("Client : Event", async () => {
 	expect(client.lastEvent).toBe("get_all_data");
 });
 
-	// TODO Token contenu dans le message ?
+// TODO Token contenu dans le message ?
 
 test("Client : Handlers", async () => {
+	client.cache.deleteUserData();
 	//tester les differents handlers
 	// client.handleLogin;
 	// client.handleLogout;

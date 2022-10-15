@@ -31,7 +31,6 @@ test("Lobbys : Start", async () => {
 	server.collections.lobbys = manager;
 	userClientSide = serverData.userClientSide;
 	userServerSide = serverData.userServerSide;
-	console.log("userServerSide", userServerSide.username);
 	adminUser.socket = userServerSide.socket;
 	ownerUser.socket = userServerSide.socket;
 	partialUser.socket = userServerSide.socket;
@@ -76,7 +75,7 @@ test("Lobbys : fonctions server vers lobbyManager", async () => {
 		lobby: {
 			...data.lobby,
 			token: lobby.getToken(),
-		}
+		},
 	});
 
 	const user1 = new User("user1", true, "ezrzer", { username: "user1" });
@@ -84,7 +83,7 @@ test("Lobbys : fonctions server vers lobbyManager", async () => {
 		lobby: {
 			...data.lobby,
 			token: lobby.getToken(),
-		}
+		},
 	});
 
 	const user2 = new User("user2", true, "ezrzer", { username: "user2" });
@@ -93,7 +92,7 @@ test("Lobbys : fonctions server vers lobbyManager", async () => {
 			lobby: {
 				...data.lobby,
 				token: lobby.getToken(),
-			}
+			},
 		});
 	}).toThrowError(`Lobby ${id} is full`);
 
