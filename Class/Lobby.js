@@ -18,6 +18,7 @@ class Lobby extends ManageableObject {
 	constructor(id, owner, token, data = {}, visibility, users = [], createdAt, updatedAt) {
 		super(id, owner, token, data, visibility, users, createdAt, updatedAt);
 		this.setMessages(data.messages);
+		this.typing = []
 	}
 
 	/**
@@ -88,6 +89,7 @@ class Lobby extends ManageableObject {
 	typing(user) {
 		this.emitToAll("typing_message", {
 			user: user.getPublicInfo(),
+			lobby: this.getPublicInfo(),
 		});
 	}
 	/**

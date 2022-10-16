@@ -247,13 +247,13 @@ export default class WebSocketClient {
 	 * @param {*} data
 	 */
 	handleConnectLobby(data) {
-		// modifier le lobby
 		this.cache.update(data.id, data.type, data);
 
-		// modifier la liste des lobbys utilisateur
 		let userData = this.getMe();
-		if (userData && !userData?.data.lobbys?.includes(data.id))
+		if (userData && !userData?.data.lobbys?.includes(data.id)) {
 			userData.data.lobbys.push(data.id);
+			this.cache.update(userData.id, userData.type, userData);
+		}
 	}
 
 	/**
@@ -263,25 +263,68 @@ export default class WebSocketClient {
 	handleDisconnectLobby(data) {
 		this.cache.update(data.id, data.type, data);
 		let userData = this.getMe();
-		if (userData && userData?.data.lobbys?.includes(data.id))
+		if (userData && userData?.data.lobbys?.includes(data.id)) {
 			userData.data.lobbys.splice(
 				userData.data.lobbys.findIndex((x) => x.id == data.id),
 				1
 			);
+			this.cache.update(userData.id, userData.type, userData);
+		}
 	}
 
 	//===== TCHAT ==================================================================
+	/**
+	 * Ajouter messsage dans le cache et le lobby
+	 * @param {*} data
+	 */
 	handleSendMessage(data) {
-		// ajouter object message
-		//modifier lobby
 		this.cache.update(data.id, data.type, data);
+		let lobby = this.cache.collections.lobbys.get(data.data.lobby.id);
+		if (lobby && !lobby.data.messages.find((mes) => mes.id == data.id)) {
+			lobby.data.messages.push(data);
+			this.cache.update(lobby.id, lobby.type, lobby);
+		}
 	}
 
-	handleReceivedMessage(data) {}
+	/**
+	 * Enrichir le message en indiquand l'utilisateur ayant recu
+	 * @param {*} data
+	 */
+	handleReceivedMessage(data) {
+		let message = this.cache.collections.messages.get(data.message.id);
+		if (message && !message.data.received.includes(data.user.id)) {
+			message.data.received.push(data.user.id);
+			this.cache.update(message.id, message.type, message);
+		}
+	}
 
-	handleViewedMessage(data) {}
+	handleViewedMessage(data) {
+		let message = this.cache.collections.messages.get(data.message.id);
+		if (message && !message.data.viewed.includes(data.user.id)) {
+			message.data.viewed.push(data.user.id);
+			this.cache.update(message.id, message.type, message);
+		}
 
-	handleTypingMessage(data) {}
+	}
+
+	handleTypingMessage(data) {
+		let lobby = this.cache.collections.lobbys.get(data.data.lobby.id);
+
+		if (lobby && !lobby.data.typing.includes(data.user.id)) {
+			lobby.data.typing.push(data.user.id);
+			this.cache.update(lobby.id, lobby.type, lobby);
+			setTimeout(()=>{
+				userData.data.lobbys.splice(
+					lobby.data.typing.findIndex((id) => x == data.id),
+					1
+				);
+				this.cache.update(lobby.id, lobby.type, lobby);
+
+	
+			}, 5000)
+		}
+		this.cache.update(lobby.id, lobby.type, lobby);
+	}
 
 	//=====================================================================================
 	handleGetData(data) {

@@ -113,8 +113,8 @@ test("Client : Event", async () => {
 
 //tester les differents handlers
 test("Client : Handlers", async () => {
-	const lobbyId = "lobbyId", lobbyToken = "lobbyToken" 
-	
+	const lobbyId = "lobbyId", lobbyToken = "lobbyToken"
+	const content = "messageContent"
 
 	client.connectLobby(lobbyId, lobbyToken);// client.handleConnectLobby;
 	await wait();
@@ -129,8 +129,10 @@ test("Client : Handlers", async () => {
 	expect(client.cache.collections.lobbys.get(lobbyId).level).toBe("public");
 	
 	
-	// client.handleSendMessage;
-	// client.handleReceivedMessage;
+	client.sendMessage(lobbyId, content);
+	client.receivedMessage(lobbyId, 0);
+	client.viewedMessage(lobbyId, 0);
+	client.typingMessage(lobbyId, 0);
 	// client.handleViewedMessage;
 	// client.handleTypingMessage;
 	// client.handleGetData;
