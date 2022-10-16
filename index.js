@@ -1,4 +1,5 @@
 const Server = require("./Class/Server");
+const Client = require("./Class/Client");
 exports.Lobby = require("./Class/Lobby");
 exports.LobbysManager = require("./Class/LobbysManager");
 exports.ManageableObject = require("./Class/ManageableObject");
@@ -16,4 +17,12 @@ exports.launchApp = function (
 	return new Server(WebSocketPort, WSoptions);
 };
 
+exports.launchClient = function (
+	domain,port,protocole,handlers,token
+) {
+	// Instancie un client webSocket et gere l'evenementiel des différents sockets associés aux User
+	return new Client(domain,port,protocole,handlers,token);
+};
+
 exports.Server = Server;
+exports.Client = Client;

@@ -98,7 +98,7 @@ test("Client : Event", async () => {
 	expect(messageServerSide.viewed[0]).toBe(user.getId());
 
 	client.typingMessage(lobby.id, token);
-	await wait();
+	await wait(400);
 	expect(client.lastEvent).toBe("typing_message");
 
 	client.getData(id, type);
@@ -110,32 +110,51 @@ test("Client : Event", async () => {
 	expect(client.lastEvent).toBe("get_all_data");
 });
 
-
 //tester les differents handlers
 test("Client : Handlers", async () => {
-	const lobbyId = "lobbyId", lobbyToken = "lobbyToken"
-	const content = "messageContent"
+	const lobbyId = "lobbyId",
+		lobbyToken = "lobbyToken";
+	const content = "messageContent";
 
-	client.connectLobby(lobbyId, lobbyToken);// client.handleConnectLobby;
+	client.connectLobby(lobbyId, lobbyToken); // client.handleConnectLobby;
 	await wait();
-	let userData = client.getMe()
+	let userData = client.getMe();
 	expect(userData.data.lobbys[0]).toBe(lobbyId);
 	expect(client.cache.collections.lobbys.get(lobbyId).level).toBe("private");
 	expect(client.cache.collections.lobbys.get(lobbyId).id).toBe(lobbyId);
 
-	client.disconnectLobby(lobbyId, lobbyToken);// client.handleDisconnectLobby;
+	client.disconnectLobby(lobbyId, lobbyToken); // client.handleDisconnectLobby;
 	await wait();
 	expect(userData.data.lobbys.length).toBe(0);
-	expect(client.cache.collections.lobbys.get(lobbyId).level).toBe("public");
-	
-	
-	client.sendMessage(lobbyId, content);
+
+	client.connectLobby(lobbyId, lobbyToken);
+	client.sendMessage(lobbyId, "content+0");
+	await wait();
+	let lobby = client.cache.collections.lobbys.get(lobbyId);
+	expect(lobby.data.messages.length).toBe(2);
+
+	client.sendMessage(lobbyId, "content+1");
+	client.sendMessage(lobbyId, "content+2");
+	client.sendMessage(lobbyId, "content+3");
+	await wait();
+	lobby = client.cache.collections.lobbys.get(lobbyId);
+	expect(lobby.data.messages.length).toBe(5);
+
+	const user = client.getMe();
+
 	client.receivedMessage(lobbyId, 0);
+	await wait();
+	expect(lobby.data.messages[0].data.received[0]).toBe(user.id);
+
 	client.viewedMessage(lobbyId, 0);
+	await wait();
+	expect(lobby.data.messages[0].data.viewed[0]).toBe(user.id);
+
 	client.typingMessage(lobbyId, 0);
-	// client.handleViewedMessage;
-	// client.handleTypingMessage;
-	// client.handleGetData;
-	// client.handleGetAllData;
-	// client.handleUpdateData;
-});
+	await wait();
+	lobby = client.cache.collections.lobbys.get(lobbyId);
+	expect(lobby.data.typingUsers[0]).toBe(user.id);
+	await wait(5000);
+	lobby = client.cache.collections.lobbys.get(lobbyId);
+	expect(lobby.data.typingUsers.length).toBe(0);
+}, 10000);

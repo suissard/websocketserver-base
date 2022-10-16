@@ -1,11 +1,12 @@
 import io from "socket.io-client";
+import { EventEmitter } from "node:events";
 import ClientCache from "./ClientCache.js";
 
 /**
  * Systeme de lien websocket et gestion d'un cache de données
  * Déclenche des evenemnt pour pouvoir alimenter un autre gestionnaire d edonéne (ex : store Vue)
  */
-export default class WebSocketClient {
+export default class WebSocketClient extends EventEmitter {
 	constructor(
 		domain = "localhost",
 		port = 3000,
@@ -13,8 +14,9 @@ export default class WebSocketClient {
 		handlers = {},
 		token
 	) {
+		super();
 		this.url = `${protocole}://${domain}:${port}`;
-		this.cache = new ClientCache();
+		this.cache = new ClientCache(this);
 
 		this.nativeListeners = {
 			login: this.handleLogin,
@@ -304,24 +306,21 @@ export default class WebSocketClient {
 			message.data.viewed.push(data.user.id);
 			this.cache.update(message.id, message.type, message);
 		}
-
 	}
 
 	handleTypingMessage(data) {
-		let lobby = this.cache.collections.lobbys.get(data.data.lobby.id);
+		let lobby = this.cache.collections.lobbys.get(data.lobby.id);
 
-		if (lobby && !lobby.data.typing.includes(data.user.id)) {
-			lobby.data.typing.push(data.user.id);
+		if (lobby && !lobby.data.typingUsers.includes(data.user.id)) {
+			lobby.data.typingUsers.push(data.user.id);
 			this.cache.update(lobby.id, lobby.type, lobby);
-			setTimeout(()=>{
-				userData.data.lobbys.splice(
-					lobby.data.typing.findIndex((id) => x == data.id),
+			setTimeout(() => {
+				lobby.data.typingUsers.splice(
+					lobby.data.typingUsers.findIndex((id) => id == data.user.id),
 					1
 				);
 				this.cache.update(lobby.id, lobby.type, lobby);
-
-	
-			}, 5000)
+			}, 5000);
 		}
 		this.cache.update(lobby.id, lobby.type, lobby);
 	}

@@ -18,7 +18,7 @@ class Lobby extends ManageableObject {
 	constructor(id, owner, token, data = {}, visibility, users = [], createdAt, updatedAt) {
 		super(id, owner, token, data, visibility, users, createdAt, updatedAt);
 		this.setMessages(data.messages);
-		this.typing = []
+		this.typingUsers = []
 	}
 
 	/**
@@ -67,6 +67,7 @@ class Lobby extends ManageableObject {
 	 * @param {User} User
 	 */
 	disconnect(user) {
+		//TODO changer le proprietaire si il est déconnecté
 		this.deleteUser(user);
 		user.lobbys.delete(this.getId(), this);
 		this.emitToAll("disconnect_lobby", this.getPublicInfo());
@@ -102,6 +103,15 @@ class Lobby extends ManageableObject {
 		let message = this.messages.create(user, { content, lobby: this }, this.token);
 		this.sendMessage(message);
 		return message;
+	}
+
+	/**
+	 * TODO Retirer un message du lobby
+	 * @param {*} messageId 
+	 * @param {*} user 
+	 */
+	deleteMessage(messageId, user){
+
 	}
 
 	getPrivateInfo() {

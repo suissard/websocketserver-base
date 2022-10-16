@@ -5,23 +5,33 @@ import ClientCacheCollection from "./ClientCacheCollection.js";
  * EVENTS : createData, updateData, deleteData
  */
 export default class ClientCache extends EventEmitter {
-	constructor() {
+	constructor(client) {
 		super();
+		Object.defineProperty(this, "getClient", {
+			enumerable: false,
+			configurable: false,
+			value: () => client,
+		});
 		this.collections = {};
 	}
+
+	getClient() {
+		throw new Error("getClient must be overcharged");
+	}
+	
 	create(id, type, data) {
 		if (!this.collections[type])
-			this.collections[type] = new ClientCacheCollection(this, type);
+			this.collections[type] = new ClientCacheCollection(this.getClient(), type);
 		return this.collections[type].create(id, data);
 	}
 	update(id, type, data) {
 		if (!this.collections[type])
-			this.collections[type] = new ClientCacheCollection(this, type);
+			this.collections[type] = new ClientCacheCollection(this.getClient(), type);
 		return this.collections[type].update(id, data);
 	}
 	delete(id, type, data) {
 		if (!this.collections[type])
-			this.collections[type] = new ClientCacheCollection(this, type);
+			this.collections[type] = new ClientCacheCollection(this.getClient(), type);
 		return this.collections[type].delete(id, data);
 	}
 

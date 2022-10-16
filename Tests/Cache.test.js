@@ -1,4 +1,5 @@
 import { test, expect } from "vitest";
+import WebSocketClient from "../Class/Client/Client";
 import ClientCacheCollection from "../Class/Client/ClientCacheCollection.js";
 import ClientCache from "../Class/Client/ClientCache.js";
 import ClientCacheObject from "../Class/Client/ClientCacheObject.js";
@@ -11,7 +12,7 @@ test("Cache : ClientCacheCollection", async () => {
 		level: "level",
 		visibility: "visibility",
 	});
-	const cache = new ClientCache();
+	const cache = new ClientCache({ emit: () => {} });
 	const cacheCollection = new ClientCacheCollection(cache, data.type);
 
 	cacheCollection.create(data.id, data);
@@ -24,7 +25,8 @@ test("Cache : ClientCacheCollection", async () => {
 
 test("Cache : ClientCache", async () => {
 	const levelUpdated = "levelUpdated";
-	const cache = new ClientCache();
+	const client = new WebSocketClient()
+	const cache = new ClientCache(client);
 	const data = new ClientCacheObject({
 		id: "id",
 		type: "type",
@@ -34,13 +36,13 @@ test("Cache : ClientCache", async () => {
 
 	//ecouter les evenements
 	let eventCreateData, eventUpdateData, eventDeleteData;
-	cache.on("createData", (data) => {
+	client.on("createData", (data) => {
 		eventCreateData = data;
 	});
-	cache.on("updateData", (data) => {
+	client.on("updateData", (data) => {
 		eventUpdateData = data;
 	});
-	cache.on("deleteData", (data) => {
+	client.on("deleteData", (data) => {
 		eventDeleteData = data;
 	});
 
