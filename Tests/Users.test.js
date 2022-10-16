@@ -57,7 +57,7 @@ test("User : Infos", async () => {
 		updatedAt: userServerSide.getUpdatedAt(),
 		data: {
 			username: userServerSide.username,
-			lobbys: new Map(),
+			lobbys: [],
 		},
 	});
 
@@ -66,7 +66,7 @@ test("User : Infos", async () => {
 		level: "partial",
 		owner: userServerSide.getOwner().getPublicInfo(),
 		visibility: userServerSide.getVisibility(),
-		type: userServerSide.constructor.name.toLowerCase() + "s",
+		type: userServerSide.constructor.name.toLowerCase() + "s", 
 		users: [],
 		createdAt: userServerSide.getCreatedAt(),
 		updatedAt: userServerSide.getUpdatedAt(),
@@ -75,7 +75,7 @@ test("User : Infos", async () => {
 		},
 	});
 
-	expect(userServerSide.getPublicInfo()).toEqual({
+	expect(userServerSide.getPublicInfo()).toEqual({ 
 		data: { username: userServerSide.username },
 		id: userServerSide.getId(),
 		level: "public",

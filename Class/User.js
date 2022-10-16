@@ -109,14 +109,6 @@ class User extends ManageableObject {
 		this.emit("send_message", data);
 	}
 
-	// /**
-	//  * Connect l'utilisateur a un lobby
-	//  * @param {Lobby} lobby
-	//  */
-	// connectLobby(lobby, token) {
-	// 	lobby.connect(this, token);
-	// }
-
 	/**
 	 * Envoie un evenement a l'utilisateur
 	 * @param {String} eventType
@@ -154,6 +146,7 @@ class User extends ManageableObject {
 
 	getPrivateInfo() {
 		let info = super.getPrivateInfo();
+		info.data.lobbys = Array.from(info.data.lobbys.values());
 		delete info.data.socket;
 		return info;
 	}

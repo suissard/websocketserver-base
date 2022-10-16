@@ -1,19 +1,26 @@
 import io from "socket.io-client";
+import { EventEmitter } from "node:events";
 import ClientCache from "./ClientCache.js";
 
 /**
  * Systeme de lien websocket et gestion d'un cache de données
  * Déclenche des evenemnt pour pouvoir alimenter un autre gestionnaire d edonéne (ex : store Vue)
  */
-export default class WebSocketClient {
-	constructor(domain = "localhost", port = 3000, protocole = "http", handlers = {}) {
+export default class WebSocketClient extends EventEmitter {
+	constructor(
+		domain = "localhost",
+		port = 3000,
+		protocole = "http",
+		handlers = {},
+		token
+	) {
+		super();
 		this.url = `${protocole}://${domain}:${port}`;
-		this.cache = new ClientCache();
+		this.cache = new ClientCache(this);
 
 		this.nativeListeners = {
 			login: this.handleLogin,
 			logout: this.handleLogout,
-			disconnect: this.handleDisconnect,
 
 			connect_lobby: this.handleConnectLobby,
 			disconnect_lobby: this.handleDisconnectLobby,
@@ -35,18 +42,44 @@ export default class WebSocketClient {
 		};
 
 		this.handlers = handlers;
-		this.connectSocket();
-		// this.setListeners(this.nativeListeners, handlers);
+		this.connectSocket(token);
+	}
+
+	setToken(token) {
+		Object.defineProperty(this, "getToken", {
+			enumerable: false,
+			configurable: true,
+			value: () => token,
+		});
+		let func = this.socket.emit.bind(this.socket);
+		this.socket.emit = (event, data) => func(event, { ...data, token });
+	}
+
+	getToken() {
+		throw new Error("This function must be overcharged");
+	}
+
+	setMe(data) {
+		Object.defineProperty(this, "getMe", {
+			enumerable: false,
+			configurable: true,
+			value: () => data,
+		});
+	}
+
+	getMe() {
+		return undefined;
 	}
 
 	/**
 	 * Methode pour initier la connexion et déclencher les listeners.
 	 * Si la conenxion ne se fait pas au bout de 5 seconde, une notif d'erreur apparait
 	 */
-	async connectSocket() {
+	async connectSocket(token) {
 		console.log("Connexion à " + this.url);
 		let socket = await io(this.url, { cors: { origins: "*" } });
 		this.socket = socket;
+		this.setToken(token);
 		this.timeoutConnexion(); //TODO verification régulière ?
 		this.login();
 		this.socket.on("connect_error", () => {
@@ -87,7 +120,7 @@ export default class WebSocketClient {
 	 */
 	setListener(socket, listener, handler) {
 		socket.on(listener, (data) => {
-			console.log("listener", listener);
+			// console.log("listener", listener);
 			this.lastData = data;
 			this.lastEvent = listener;
 			try {
@@ -102,21 +135,14 @@ export default class WebSocketClient {
 		setTimeout(() => {
 			if (this.socket && this.socket.connected) return;
 			this.socket = undefined;
-			this.notifToApp("error", {title: "Connexion impossible",message: "Le serveur ne repond pas"})
-
+			this.notifToApp("error", {
+				title: "Connexion impossible",
+				message: "Le serveur ne repond pas",
+			});
 		}, timer);
 	}
 
 	// ======= EMETRE DES EVENTS ====================================================================
-	/**
-	 * Met a jour les donnée de l'utilisateur en provenance du serveur
-	 */
-	 saveUserData(data = {}) {
-		console.log("saveUserData");
-		throw new Error("This function must be overcharged");
-
-	}
-
 	/**
 	 * Envoie une requete de login avec priorité au données en local si pas d'argument fournit
 	 */
@@ -203,54 +229,100 @@ export default class WebSocketClient {
 	 * Reception d'un evenement login
 	 */
 	handleLogin(data) {
-		this.saveUserData(data);
+		let { id, type, token } = data;
+		this.setToken(token);
+		this.setMe(data);
+		this.cache.create(id, type, data);
 	}
 
-	handleLogout() {}
-
-	handleDisconnect() {}
-
-	handleUpdateUser(data) {
-		this.saveUserData(data);
+	/**
+	 * Supprimer les données utilisateurs et les données private et partial
+	 */
+	handleLogout() {
+		let userData = this.getMe();
+		this.cache.delete(userData.id, "users");
+		this.cache.deleteUserData();
 	}
 
-	handleConnectLobby(data) {}
-	handleDisconnectLobby() {}
+	/**
+	 * Recupération des nouvelles données de lobby et modifier la liste des lobby de l'utilisateur
+	 * @param {*} data
+	 */
+	handleConnectLobby(data) {
+		this.cache.update(data.id, data.type, data);
+
+		let userData = this.getMe();
+		if (userData && !userData?.data.lobbys?.includes(data.id)) {
+			userData.data.lobbys.push(data.id);
+			this.cache.update(userData.id, userData.type, userData);
+		}
+	}
+
+	/**
+	 * Recupération des nouvelles données de lobby et modifier la liste des lobby de l'utilisateur
+	 * @param {*} data
+	 */
+	handleDisconnectLobby(data) {
+		this.cache.update(data.id, data.type, data);
+		let userData = this.getMe();
+		if (userData && userData?.data.lobbys?.includes(data.id)) {
+			userData.data.lobbys.splice(
+				userData.data.lobbys.findIndex((x) => x.id == data.id),
+				1
+			);
+			this.cache.update(userData.id, userData.type, userData);
+		}
+	}
 
 	//===== TCHAT ==================================================================
-	handleSendMessage(data) {}
-	handleReceivedMessage(data) {}
-	handleViewedMessage(data) {}
-	handleTypingMessage(data) {}
-
-	// GESTION DES DONNEES ============================================================
 	/**
-	 * Fonction de sauvegarde des données recu, relié a l'application ( a surcharger)
-	 * @param {String} id
-	 * @param {String} type
-	 * @param {Object} value Donnée
+	 * Ajouter messsage dans le cache et le lobby
+	 * @param {*} data
 	 */
-	saveData(id, type, value) {
-		throw new Error("This function must be overcharged");
+	handleSendMessage(data) {
+		this.cache.update(data.id, data.type, data);
+		let lobby = this.cache.collections.lobbys.get(data.data.lobby.id);
+		if (lobby && !lobby.data.messages.find((mes) => mes.id == data.id)) {
+			lobby.data.messages.push(data);
+			this.cache.update(lobby.id, lobby.type, lobby);
+		}
 	}
 
 	/**
-	 * Fonction d'update des données recu, relié a l'application ( a surcharger)
-	 * @param {String} id
-	 * @param {String} type
-	 * @param {Object} value Donnée
+	 * Enrichir le message en indiquand l'utilisateur ayant recu
+	 * @param {*} data
 	 */
-	updateData(id, type, value) {
-		throw new Error("This function must be overcharged");
+	handleReceivedMessage(data) {
+		let message = this.cache.collections.messages.get(data.message.id);
+		if (message && !message.data.received.includes(data.user.id)) {
+			message.data.received.push(data.user.id);
+			this.cache.update(message.id, message.type, message);
+		}
 	}
-	/**
-	 * Fonction de suppression des données recu, relié a l'application ( a surcharger)
-	 * @param {String} id
-	 * @param {String} type
-	 * @param {Object} value Donnée
-	 */
-	deleteData(id, type, value) {
-		throw new Error("This function must be overcharged");
+
+	handleViewedMessage(data) {
+		let message = this.cache.collections.messages.get(data.message.id);
+		if (message && !message.data.viewed.includes(data.user.id)) {
+			message.data.viewed.push(data.user.id);
+			this.cache.update(message.id, message.type, message);
+		}
+	}
+
+	handleTypingMessage(data) {
+		let lobby = this.cache.collections.lobbys.get(data.lobby.id);
+
+		if (lobby && !lobby.data.typingUsers.includes(data.user.id)) {
+			lobby.data.typingUsers.push(data.user.id);
+			this.cache.update(lobby.id, lobby.type, lobby);
+			setTimeout(() => {
+				lobby.data.typingUsers.splice(
+					lobby.data.typingUsers.findIndex((id) => id == data.user.id),
+					1
+				);
+				this.cache.update(lobby.id, lobby.type, lobby);
+			}, 5000);
+		}
+		this.cache.update(lobby.id, lobby.type, lobby);
 	}
 
 	//=====================================================================================

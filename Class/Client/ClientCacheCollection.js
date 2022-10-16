@@ -1,18 +1,20 @@
+import ClientCacheObject from "./ClientCacheObject.js";
 /**
  * System de cache pour le Client
  */
 export default class ClientCacheCollection extends Map {
-	constructor(clientCache, type) {
+	constructor(client, type) {
+		super();
 		Object.defineProperty(this, "getType", {
 			enumerable: false,
 			configurable: false,
 			value: () => type,
 		});
 
-		Object.defineProperty(this, "getClientCache", {
+		Object.defineProperty(this, "getClient", {
 			enumerable: false,
 			configurable: false,
-			value: () => clientCache,
+			value: () => client,
 		});
 	}
 
@@ -20,27 +22,38 @@ export default class ClientCacheCollection extends Map {
 		throw new Error("getType must be overcharged");
 	}
 
-	getClientCache() {
-		throw new Error("getClientCache must be overcharged");
+	getClient() {
+		throw new Error("getClient must be overcharged");
 	}
-
-	// set(id, value) {
-	// 	super.set(id, value);
-	// 	this.getClientCache().emit("setData", { id, type: this.getType(), value });
-	// }
 
 	create(id, value) {
-		super.set(id, value);
-		this.getClientCache().emit("createData", { id, type: this.getType(), value });
+		let data = new ClientCacheObject(value);
+		this.set(id, data);
+		this.getClient().emit("createData", { id, type: this.getType(), data });
 	}
 
-	uddate(id, value) {
-		super.set(id, value);
-		this.getClientCache().emit("updateData", { id, type: this.getType(), value });
+	/**
+	 * Met a jour les données d'un object si elle sont d'un niveau equivalent ou meilleur niveau
+	 * @param {*} id
+	 * @param {*} value
+	 */
+	update(id, value) {
+		let oldData = this.get(id);
+		let data = new ClientCacheObject(value);
+		if (oldData && oldData.level == "private" && data.level !== "private") return;
+		if (
+			oldData &&
+			oldData.level == "partial" &&
+			data.level !== "private" &&
+			data.level !== "public"
+		)
+			return;
+		this.set(id, data);
+		this.getClient().emit("updateData", { id, type: this.getType(), data });
 	}
 
 	delete(id) {
 		super.delete(id);
-		this.getClientCache().emit("deleteData", { id, type: this.getType() });
+		this.getClient().emit("deleteData", { id, type: this.getType() });
 	}
 }
