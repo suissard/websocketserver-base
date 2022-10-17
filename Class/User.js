@@ -116,7 +116,8 @@ class User extends ManageableObject {
 	 */
 	emit(eventType, data) {
 		try {
-			this.socket?.emit(eventType, data);
+			if (!this.socket) return false
+			this.socket.emit(eventType, data);
 			return true;
 		} catch (error) {
 			console.error(`BUG Emit pour User ${this.id} : ${error.message}`, error.stack);
@@ -141,7 +142,8 @@ class User extends ManageableObject {
 	 * @returns {Boolean}
 	 */
 	isConnect() {
-		return this.socket?.connected;
+		if (!this.socket) return false;
+		else return this.socket.connected;
 	}
 
 	getPrivateInfo() {

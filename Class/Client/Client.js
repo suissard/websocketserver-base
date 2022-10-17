@@ -252,7 +252,7 @@ export default class WebSocketClient extends EventEmitter {
 		this.cache.update(data.id, data.type, data);
 
 		let userData = this.getMe();
-		if (userData && !userData?.data.lobbys?.includes(data.id)) {
+		if (userData && !userData.data.lobbys.includes(data.id)) {
 			userData.data.lobbys.push(data.id);
 			this.cache.update(userData.id, userData.type, userData);
 		}
@@ -265,7 +265,7 @@ export default class WebSocketClient extends EventEmitter {
 	handleDisconnectLobby(data) {
 		this.cache.update(data.id, data.type, data);
 		let userData = this.getMe();
-		if (userData && userData?.data.lobbys?.includes(data.id)) {
+		if (userData && userData.data.lobbys.includes(data.id)) {
 			userData.data.lobbys.splice(
 				userData.data.lobbys.findIndex((x) => x.id == data.id),
 				1

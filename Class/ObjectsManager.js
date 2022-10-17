@@ -148,19 +148,6 @@ class ObjectsManager extends Map {
 		object.deleted();
 	}
 
-	// /**
-	//  * Recuperer un objet en verifiant les acces
-	//  * @param {Number} id Identifiant de l'objet cible
-	//  * @param {User} user Utilisateur effectuant la requete
-	//  * @param {String} token Token pour acceder a l'objet
-	//  * @returns {ManageableObject}
-	//  */
-	// get(id, user, token) {
-	// 	const obj = super.get(id);
-	// 	if (obj?.checkUserAccess(user, token) || this.userIsAdmin(user)) return obj;
-	// 	return false;
-	// }
-
 	/**
 	 * Effectuer une action sur l'objet
 	 * @param {String} action
@@ -254,7 +241,8 @@ class ObjectsManager extends Map {
 	 * @returns {Boolean}
 	 */
 	userIsAdmin(user) {
-		return this.adminsId.includes(user?.getId());
+		if (!user) return false;
+		return this.adminsId.includes(user.getId());
 	}
 
 	/**

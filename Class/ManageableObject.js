@@ -25,7 +25,7 @@ class ManageableObject {
 		manager
 	) {
 		if (id === undefined || !owner || token === undefined)
-			throw new Error( `'ID' 'OWNER' 'TOKEN' must be specified` );
+			throw new Error(`'ID' 'OWNER' 'TOKEN' must be specified`);
 
 		this.beforeCreated(id, owner, token, data, visibility, createdAt, updatedAt, manager);
 		this.setId(id);
@@ -387,7 +387,8 @@ class ManageableObject {
 	 * @returns {Boolean}
 	 */
 	userIsOwner(user) {
-		return user?.getId() === this.getOwner().getId();
+		if (!user) return false;
+		return user.getId() === this.getOwner().getId();
 	}
 
 	/**
