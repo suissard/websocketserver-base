@@ -1,6 +1,7 @@
-const uuidv4 = require("uuid").v4;
-const User = require("./User.js");
-const ManageableObject = require("./ManageableObject.js");
+import {v4} from "uuid";
+const uuidv4 = v4;
+import User from "./User.js";
+import ManageableObject from "./ManageableObject.js";
 
 /**
  * Permet de gerer une collection d'object en servant d'intermediaire, pour limiter es acces en fonction des droits utilisateurs
@@ -276,4 +277,4 @@ class ObjectsManager extends Map {
 	}
 }
 
-module.exports = ObjectsManager;
+export default ObjectsManager;

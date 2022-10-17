@@ -1,6 +1,6 @@
-const User = require("./User.js");
-const ObjectsManager = require("./ObjectsManager.js");
-const Message = require("./Message.js");
+import User from "./User.js";
+import ObjectsManager from "./ObjectsManager.js";
+import Message from "./Message.js";
 
 /**
  * Gestionnaire de Message
@@ -23,4 +23,4 @@ class MessagesManager extends ObjectsManager {
 		}
 }
 
-module.exports = MessagesManager;
+export default MessagesManager;

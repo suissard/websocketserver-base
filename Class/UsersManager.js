@@ -1,6 +1,7 @@
-const uuidv4 = require("uuid").v4;
-const User = require("./User.js");
-const ObjectsManager = require("./ObjectsManager.js");
+import {v4} from "uuid";
+const uuidv4 = v4;
+import User from "./User.js";
+import ObjectsManager from "./ObjectsManager.js";
 
 class UsersManager extends ObjectsManager {
 	/**
@@ -167,4 +168,4 @@ class UsersManager extends ObjectsManager {
 	}
 }
 
-module.exports = UsersManager;
+export default UsersManager;

@@ -1,5 +1,5 @@
-const ObjectsManager = require("./ObjectsManager.js");
-const User = require("./User.js");
+import ObjectsManager from "./ObjectsManager.js";
+import User from "./User.js";
 
 /**
  * Object pouvant etre géré par un manager
@@ -486,4 +486,4 @@ class ManageableObject {
 	}
 }
 
-module.exports = ManageableObject;
+export default ManageableObject;

@@ -1,5 +1,5 @@
-const Lobby = require("./Lobby.js");
-const ObjectsManager = require("./ObjectsManager.js");
+import Lobby from "./Lobby.js";
+import ObjectsManager from "./ObjectsManager.js";
 
 /**
  * Gestionnaire de Lobby
@@ -26,4 +26,4 @@ class LobbysManager extends ObjectsManager {
 	}
 }
 
-module.exports = LobbysManager;
+export default LobbysManager;

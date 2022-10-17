@@ -1,8 +1,8 @@
 // Serveur WebSocket universel
-const io = require("socket.io"); //(3000, { cors: { origin: "*" } });
+import io from "socket.io"; //(3000, { cors: { origin: "*" } });
 
-const LobbysManager = require("./LobbysManager.js");
-const UsersManager = require("./UsersManager.js");
+import LobbysManager from "./LobbysManager.js";
+import UsersManager from "./UsersManager.js";
 
 /**
  *
@@ -273,4 +273,4 @@ class Server extends io.Server {
 	}
 }
 
-module.exports = Server;
+export default Server;

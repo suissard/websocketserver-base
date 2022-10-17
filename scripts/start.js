@@ -1,4 +1,4 @@
-const Server = require("../Class/Server.js");
+import Server from "../Class/Server.js";
 
 const launchApp = function (
 	WebSocketPort = 3000,

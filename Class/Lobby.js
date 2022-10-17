@@ -1,6 +1,6 @@
-const Message = require("./Message.js");
-const ManageableObject = require("./ManageableObject.js");
-const MessagesManager = require("./MessagesManager.js");
+import Message from "./Message.js";
+import ManageableObject from "./ManageableObject.js";
+import MessagesManager from "./MessagesManager.js";
 
 /**
  * Salon d'utilisateurs permettant l'usage de message instantané
@@ -121,4 +121,4 @@ class Lobby extends ManageableObject {
 	}
 }
 
-module.exports = Lobby;
+export default Lobby;

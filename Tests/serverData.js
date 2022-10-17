@@ -2,8 +2,8 @@ import wait from "../Tools/wait.js";
 import ObjectsManager from "../Class/ObjectsManager.js";
 import User from "../Class/User.js";
 
-const Server = require("../Class/Server");
-const WebSocketClient = require("./WebSocketClientForTesting.js");
+const Server from "../Class/Server");
+const WebSocketClient from "./WebSocketClientForTesting.js");
 
 /**
  *

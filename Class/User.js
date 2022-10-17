@@ -1,4 +1,4 @@
-const ManageableObject = require("./ManageableObject.js");
+import ManageableObject from "./ManageableObject.js";
 
 class User extends ManageableObject {
 	/**
@@ -169,4 +169,4 @@ class User extends ManageableObject {
 	}
 }
 
-module.exports = User;
+export default User;

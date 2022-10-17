@@ -1,4 +1,4 @@
-const io = require( "socket.io-client");
+const io from  "socket.io-client");
 
 module.exports =class WebSocketClientForTesting {
 	constructor(domain = "localhost", port = 3000, protocole = "http") {

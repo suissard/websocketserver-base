@@ -1,5 +1,5 @@
-const User = require("./User.js");
-const ManageableObject = require("./ManageableObject.js");
+import User from "./User.js";
+import ManageableObject from "./ManageableObject.js";
 
 /**
  * Message instantané
@@ -75,4 +75,4 @@ class Message extends ManageableObject {
 	}
 }
 
-module.exports = Message;
+export default Message;
