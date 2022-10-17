@@ -25,11 +25,7 @@ class ManageableObject {
 		manager
 	) {
 		if (id === undefined || !owner || token === undefined)
-			throw new Error(
-				`${id === undefined ? "ID " : ""}${!owner ? "OWNER " : ""}${
-					token === undefined ? "TOKEN " : ""
-				} must be specified`
-			);
+			throw new Error( `'ID' 'OWNER' 'TOKEN' must be specified` );
 
 		this.beforeCreated(id, owner, token, data, visibility, createdAt, updatedAt, manager);
 		this.setId(id);
@@ -400,7 +396,7 @@ class ManageableObject {
 	 * @returns {Boolean}
 	 */
 	userIsPresent(user) {
-		return this.getUsers().find((x) => x.getId() === user?.getId()) ? true : false;
+		return this.getUsers().find((x) => x.getId() === user.getId());
 	}
 
 	/**

@@ -25,8 +25,8 @@ test("User : Basics", async () => {
 		new Lobby(1, userServerSide, 123456798, 12),
 		new Lobby(2, userServerSide, 123456798, 12),
 	];
-
-	expect(userServerSide.setLobbys(lobbys).size).toBe(3);
+	userServerSide.setLobbys(lobbys)
+	expect(userServerSide.getLobbysId().length).toBe(3);
 
 	const reservedProperty = "socket";
 	userServerSide.update({ [reservedProperty]: "wrongValue" }).getPrivateInfo();
@@ -57,7 +57,7 @@ test("User : Infos", async () => {
 		updatedAt: userServerSide.getUpdatedAt(),
 		data: {
 			username: userServerSide.username,
-			lobbys: [],
+			lobbys: userServerSide.getLobbysId(),
 		},
 	});
 

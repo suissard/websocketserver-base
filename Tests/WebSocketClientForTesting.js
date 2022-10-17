@@ -13,7 +13,8 @@ module.exports =class WebSocketClientForTesting {
 		socket.onAny((eventName, data) => {
 			// console.log(`👤 WebsocketClient recoit : ${eventName}`, data);
 			this.lastEvent = eventName
-			this.lastData = typeof data == 'string' ? JSON.parse(data) : data
+			if (typeof data == 'string')this.lastData = JSON.parse(data)
+			else this.lastData = data
 		});
 
 		return socket; // Differents évenements a écouter

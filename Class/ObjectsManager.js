@@ -284,7 +284,7 @@ class ObjectsManager extends Map {
 			if (func(obj))
 				if (obj.checkUserAccess(user, token) || this.userIsAdmin(user)) result.push(obj);
 		}
-		return result.length ? result : false;
+		return result;
 	}
 }
 

@@ -6,11 +6,7 @@ export default class ClientCacheObject {
 		let { id, level, owner, token, visibility, type, users, createdAt, updatedAt, data } =
 			value;
 		if (id === undefined || !type || !level || visibility === undefined)
-			throw new Error(
-				`${id === undefined ? "" : "'id' "}${type ? "" : "'type' "}${level ? "" : "'level' "}${
-					visibility !== undefined ? "" : "'visibility' "
-				}is required`
-			);
+			throw new Error(`'id' 'type' 'level' 'visibility' is required`);
 
 		this.id = id;
 		this.type = type;

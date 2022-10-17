@@ -14,14 +14,14 @@ class User extends ManageableObject {
 		super(id, owner, token, data, visibility, (users = []), createdAt, updatedAt);
 		this.setOwner(this);
 
-		this.lobbys = data.lobbys ? this.setLobbys(lobbys) : new Map(); // Gestionnaire de salon où se trouve l'utilisateur
+		this.setLobbys(data.lobbys); // Gestionnaire de salon où se trouve l'utilisateur
 	}
 
 	/**
 	 * Récuperer la liste des id des Lobby
 	 * @returns {Array}
 	 */
-	getLobbys() {
+	getLobbysId() {
 		let result = [];
 		this.lobbys.forEach((lobby) => result.push(lobby.getId()));
 		return result;
@@ -32,10 +32,10 @@ class User extends ManageableObject {
 	 * @returns {Map}
 	 */
 
-	setLobbys(lobbysArray) {
+	setLobbys(lobbysArray = []) {
 		let result = new Map();
 		lobbysArray.forEach((lobby) => result.set(lobby.getId(), lobby));
-		return result;
+		this.lobbys = result;
 	}
 
 	getUpdatableProperty() {
@@ -146,7 +146,7 @@ class User extends ManageableObject {
 
 	getPrivateInfo() {
 		let info = super.getPrivateInfo();
-		info.data.lobbys = Array.from(info.data.lobbys.values());
+		info.data.lobbys = this.getLobbysId();
 		delete info.data.socket;
 		return info;
 	}
