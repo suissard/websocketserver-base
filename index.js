@@ -1,7 +1,7 @@
-exports.Client = require("./Class/Client");
-exports.ClientCache = require("./Class/ClientCache");
-exports.ClientCacheCollection = require("./Class/ClientCacheCollection");
-exports.ClientCacheObject = require("./Class/ClientCacheObject");
+exports.Client = require("./Class/Client/Client");
+exports.ClientCache = require("./Class/Client/ClientCache");
+exports.ClientCacheCollection = require("./Class/Client/ClientCacheCollection");
+exports.ClientCacheObject = require("./Class/Client/ClientCacheObject");
 
 
 exports.Server = require("./Class/Server");
