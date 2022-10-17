@@ -43,14 +43,14 @@ class ObjectsManager extends Map {
 	}
 
 	/**
-	 * Récuperer les actions disponibles en fonction des droits utilisateurs
+	 * Récuperer les permissions disponibles en fonction des droits utilisateurs
 	 * @returns {Array}
 	 */
 	getPermissions() {
 		throw new Error("This function must be overcharge");
 	}
 	setPermissions(
-		actions = {
+		permissions = {
 			owner: [
 				"setId",
 				"setOwner",
@@ -73,7 +73,7 @@ class ObjectsManager extends Map {
 			users: ["addUser", "addUsers"],
 		}
 	) {
-		this.permissions = actions;
+		this.permissions = permissions;
 	}
 	/**
 	 * Générer un token d'authentication
@@ -103,10 +103,12 @@ class ObjectsManager extends Map {
 			token || this.generateToken(),
 			data,
 			visibility,
+			undefined,
 			createdAt,
-			updatedAt
+			updatedAt,
+			this
 		);
-		newObject.created(id, user, token, data, visibility, createdAt, updatedAt);
+		newObject.created(id, user, token, data, visibility, createdAt, updatedAt, this);
 
 		this.set(newObject.getId(), newObject);
 		return newObject;
@@ -166,18 +168,18 @@ class ObjectsManager extends Map {
 	 */
 	makeAction(action, args, id, user, token) {
 		const object = this.checkUserAccess(id, user, token);
-		// TODO Verifier liste d'actions réalisables
+		// TODO Verifier liste d'permissions réalisables
 		object[action](...args);
 	}
 
 	/**
-	 * Recuperer al liste des actions autorisé a un utilisateur et le token fournit
+	 * Recuperer al liste des permissions autorisé a un utilisateur et le token fournit
 	 * @param {String} id
 	 * @param {User} user
 	 * @param {String} token
 	 * @returns {Object}
 	 */
-	getActions(id, user, token) {
+	getPermissions(id, user, token) {
 		const object = this.checkUserAccess(id, user, token);
 		if (!object) return [];
 
@@ -212,7 +214,7 @@ class ObjectsManager extends Map {
 			data = object.getPrivateInfo();
 		else if (object.userIsPresent(user)) data = object.getPartialInfo();
 		else if (object.getVisibility()) data = object.getPublicInfo();
-		if (data) data.actions = this.getActions(id, user, token);
+		if (data) data.permissions = this.getPermissions(id, user, token);
 		return data;
 	}
 

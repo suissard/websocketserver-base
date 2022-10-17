@@ -1,3 +1,4 @@
+const ObjectsManager = require("./ObjectsManager.js");
 const User = require("./User.js");
 
 /**
@@ -12,7 +13,17 @@ const User = require("./User.js");
  * @returns {ManageableObject}
  */
 class ManageableObject {
-	constructor(id, owner, token, data = {}, visibility, users = [], createdAt, updatedAt) {
+	constructor(
+		id,
+		owner,
+		token,
+		data = {},
+		visibility,
+		users = [],
+		createdAt,
+		updatedAt,
+		manager
+	) {
 		if (id === undefined || !owner || token === undefined)
 			throw new Error(
 				`${id === undefined ? "ID " : ""}${!owner ? "OWNER " : ""}${
@@ -20,7 +31,7 @@ class ManageableObject {
 				} must be specified`
 			);
 
-		this.beforeCreated(id, owner, token, data, visibility, createdAt, updatedAt);
+		this.beforeCreated(id, owner, token, data, visibility, createdAt, updatedAt, manager);
 		this.setId(id);
 		this.setOwner(owner);
 		this.setToken(token);
@@ -29,6 +40,8 @@ class ManageableObject {
 
 		this.setCreatedAt(createdAt || Date.now());
 		this.setUpdatedAt(updatedAt || Date.now());
+
+		if (manager) this.setManager(manager);
 
 		for (let i in data) {
 			if (this[i]) throw new Error(`"${i}" already exist in ${this.constructor.name}`);
@@ -163,6 +176,21 @@ class ManageableObject {
 		});
 	}
 
+	/**
+	 * Récupérer le manager de l'objet
+	 * @returns {ObjectsManager}
+	 */
+	getManager() {
+		return new Error("This function must be overcharge");
+	}
+
+	/**
+	 * Définit le manager de l'objet
+	 * @param {ObjectsManager} manager
+	 */
+	setManager(manager) {
+		this.setProperty("getManager", manager);
+	}
 	/**
 	 * Récuperer l'id system de l'objet
 	 * @returns {Number}

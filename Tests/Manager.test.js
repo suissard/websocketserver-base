@@ -33,6 +33,7 @@ test("ManageableObject : Basic data", async () => {
 	expect(object.getCreatedAt()).toBeTypeOf("number");
 	expect(object.getUpdatedAt()).toBeTypeOf("number");
 	expect(object.getCreatedAt()).toBeLessThan(Date.now());
+	expect(object.getManager()).toBeTypeOf("object");
 });
 
 test("ManageableObject : system entries", async () => {
@@ -60,10 +61,10 @@ test("ManageableObject : system entries", async () => {
 
 	object.addUser(user4);
 	expect(
-		() => manager.getActions(object.getId(), wrongUser, 7864363).length
+		() => manager.getPermissions(object.getId(), wrongUser, 7864363).length
 	).toThrowError(`User ${wrongUser.username} don't have access`);
-	expect(manager.getActions(object.getId(), user4, 7864363).length).toBe(2);
-	expect(manager.getActions(object.getId(), wrongUser, object.getToken()).length).toBe(6);
+	expect(manager.getPermissions(object.getId(), user4, 7864363).length).toBe(2);
+	expect(manager.getPermissions(object.getId(), wrongUser, object.getToken()).length).toBe(6);
 	object.deleteUser(user4);
 });
 

@@ -11,7 +11,7 @@ The access to data {ManageableObject} is determined by owner, token, users and v
 - users : can add users but not delete them or update data
 - visibility : if it true, everyone can see id, number of users
 
-Each Class who herite from ManageableObject can customise access to spécifique property or actions
+Each Class who herite from ManageableObject can customise access to spécifique property or permissions
 
 ## EVENTS
 

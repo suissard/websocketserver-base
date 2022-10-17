@@ -65,9 +65,9 @@ class Game {
 		this.logs = new Logs(logs);
 
 		/**
-		 * Listes des actions possible par un certain utilisateur selon dun fonction de condition
+		 * Listes des permissions possible par un certain utilisateur selon dun fonction de condition
 		 */
-		this.actions = {
+		this.permissions = {
 			addPlayer: (authUser = {}) => this.ownerId == authUser.id && this.state == "create",
 			removePlayer: (authUser = {}) =>
 				this.ownerId == authUser.id && this.state == "create",
@@ -172,13 +172,13 @@ class Game {
 		return this.getInfos();
 	}
 	/**
-	 * Recupere la listes des actions accessible a l'utilisateur qui la demande
-	 * @param {User} authUser user dont on doit verifier les actions possibles
+	 * Recupere la listes des permissions accessible a l'utilisateur qui la demande
+	 * @param {User} authUser user dont on doit verifier les permissions possibles
 	 */
-	getActions(authUser) {
+	getPermissions(authUser) {
 		let result = [];
-		for (let actionName in this.actions) {
-			if (this.actions[actionName](authUser)) result.push(actionName);
+		for (let actionName in this.permissions) {
+			if (this.permissions[actionName](authUser)) result.push(actionName);
 		}
 		return result;
 	}
@@ -213,7 +213,7 @@ class Game {
 	 * @param {Object} data... autre données pouvant etre utiles
 	 */
 	handleAction(user, data) {
-		if (!this.actions[data.action](user))
+		if (!this.permissions[data.action](user))
 			throw new Error("Vous en pouvez pas réaliser cette action"); // Verifier qeu l'utilisateur a le droit de réaliser l'action
 		this[data.action](user, data); // Réaliser l'action
 	}
