@@ -1,4 +1,4 @@
-import { EventEmitter } from "node:events";
+import { EventEmitter } from "events";
 import ClientCacheCollection from "./ClientCacheCollection.js";
 /**
  * System de cache pour le Client basé sur des evenements

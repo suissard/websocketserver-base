@@ -1,5 +1,5 @@
 import io from "socket.io-client";
-import { EventEmitter } from "node:events";
+import { EventEmitter } from "events";
 import ClientCache from "./ClientCache.js";
 
 /**
