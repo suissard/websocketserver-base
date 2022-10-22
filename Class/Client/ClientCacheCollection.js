@@ -1,8 +1,8 @@
-import ClientCacheObject from "./ClientCacheObject.js";
+const ClientCacheObject = require("./ClientCacheObject.js");
 /**
  * System de cache pour le Client
  */
-export default class ClientCacheCollection extends Map {
+class ClientCacheCollection extends Map {
 	constructor(client, type) {
 		super();
 		Object.defineProperty(this, "getType", {
@@ -57,3 +57,5 @@ export default class ClientCacheCollection extends Map {
 		this.getClient().emit("deleteData", { id, type: this.getType() });
 	}
 }
+
+module.exports = ClientCacheCollection

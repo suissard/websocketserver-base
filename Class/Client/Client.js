@@ -1,12 +1,12 @@
-import io from "socket.io-client";
-import { EventEmitter } from "events";
-import ClientCache from "./ClientCache.js";
+const io = require("socket.io-client");
+const { EventEmitter } = require("events");
+const ClientCache = require("./ClientCache.js");
 
 /**
  * Systeme de lien websocket et gestion d'un cache de données
  * Déclenche des evenemnt pour pouvoir alimenter un autre gestionnaire d edonéne (ex : store Vue)
  */
-export default class WebSocketClient extends EventEmitter {
+class WebSocketClient extends EventEmitter {
 	constructor(
 		domain = "localhost",
 		port = 3000,
@@ -369,3 +369,5 @@ export default class WebSocketClient extends EventEmitter {
 		this.notifToApp("info", data);
 	}
 }
+
+module.exports = WebSocketClient

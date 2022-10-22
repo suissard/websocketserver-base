@@ -1,6 +1,6 @@
-import wait from "../Tools/wait.js";
-import ObjectsManager from "../Class/ObjectsManager.js";
-import User from "../Class/User.js";
+const wait = require("../Tools/wait.js");
+const ObjectsManager = require("../Class/ObjectsManager.js");
+const User = require("../Class/User.js");
 
 const Server = require("../Class/Server");
 const WebSocketClient = require("./WebSocketClientForTesting.js");

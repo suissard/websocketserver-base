@@ -1,10 +1,10 @@
-import { EventEmitter } from "events";
-import ClientCacheCollection from "./ClientCacheCollection.js";
+const { EventEmitter } = require("events");
+const ClientCacheCollection = require("./ClientCacheCollection.js");
 /**
  * System de cache pour le Client basé sur des evenements
  * EVENTS : createData, updateData, deleteData
  */
-export default class ClientCache extends EventEmitter {
+class ClientCache extends EventEmitter {
 	constructor(client) {
 		super();
 		Object.defineProperty(this, "getClient", {
@@ -18,7 +18,7 @@ export default class ClientCache extends EventEmitter {
 	getClient() {
 		throw new Error("getClient must be overcharged");
 	}
-	
+
 	create(id, type, data) {
 		if (!this.collections[type])
 			this.collections[type] = new ClientCacheCollection(this.getClient(), type);
@@ -48,3 +48,5 @@ export default class ClientCache extends EventEmitter {
 		}
 	}
 }
+
+module.exports = ClientCache

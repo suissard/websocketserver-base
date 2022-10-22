@@ -1,7 +1,7 @@
 /**
  * Class pour recuperer les object dan le cache. Verifie les propriétés critiques
  */
-export default class ClientCacheObject {
+class ClientCacheObject {
 	constructor(value) {
 		let { id, level, owner, token, visibility, type, users, createdAt, updatedAt, data } =
 			value;
@@ -21,3 +21,5 @@ export default class ClientCacheObject {
 		this.data = data || {};
 	}
 }
+
+module.exports = ClientCacheObject

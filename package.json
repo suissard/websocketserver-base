@@ -1,26 +1,29 @@
 {
-  "name": "websocketserver-base",
-  "version": "1.0.7",
-  "description": "WebSocket system, to connect users and allow them to tchating and handle/share private data",
-  "main": "index.js",
-
-  "keywords": ["websocket", "users", "tchat", "data"],
-  "author": "@suissard <clavier.jeremy@gmail.com>",
-  "license": "CC0 1.0 Universal",
-
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/suissard/websocketserver-base.git"
-  },
-
-  "dependencies": {
-    "socket.io": "^4.4.1",
-    "socket.io-client": "^4.5.1",
-    "uuid": "^8.3.2",
-    "vitest": "^0.21.1"
-  },
-  "scripts": {
-    "test": "vitest --globals",
-    "start": "node scripts/start.js"
-  }
+	"name": "websocketserver-base",
+	"version": "1.0.8",
+	"description": "WebSocket system, to connect users and allow them to tchating and handle/share private data",
+	"main": "index.js",
+	"type": "commonjs",
+	"keywords": [
+		"websocket",
+		"users",
+		"tchat",
+		"data"
+	],
+	"author": "@suissard <clavier.jeremy@gmail.com>",
+	"license": "CC0 1.0 Universal",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/suissard/websocketserver-base.git"
+	},
+	"dependencies": {
+		"socket.io": "^4.4.1",
+		"socket.io-client": "^4.5.1",
+		"uuid": "^8.3.2",
+		"vitest": "^0.21.1"
+	},
+	"scripts": {
+		"test": "vitest --globals",
+		"start": "node scripts/start.js"
+	}
 }

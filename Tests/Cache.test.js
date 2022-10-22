@@ -16,7 +16,7 @@ test("Cache : ClientCacheCollection", async () => {
 	const cacheCollection = new ClientCacheCollection(cache, data.type);
 
 	cacheCollection.create(data.id, data);
-	expect(cacheCollection.get(data.id)).toStrictEqual(data);
+	expect(cacheCollection.get(data.id)).toEqual(data);
 	cacheCollection.update(data.id, { ...data, level: levelUpdated });
 	expect(cacheCollection.get(data.id).level).toBe(levelUpdated);
 	cacheCollection.delete(data.id, data);
@@ -48,8 +48,8 @@ test("Cache : ClientCache", async () => {
 
 	cache.create(data.id, data.type, data);
 	const cacheCollection = cache.collections[data.type];
-	expect(cacheCollection.get(data.id)).toStrictEqual(data);
-	expect(eventCreateData.data).toStrictEqual(data);
+	expect(cacheCollection.get(data.id)).toEqual(data);
+	expect(eventCreateData.data).toEqual(data);
 	expect(cacheCollection.size).toBe(1);
 
 	cache.update(data.id, data.type, { ...data, level: levelUpdated });
@@ -72,7 +72,7 @@ test("Cache : ClientCache", async () => {
 
 	cache.deleteUserData();
 	expect(cacheCollection.size).toBe(2);
-	expect(cacheCollection.get(data.id)).toStrictEqual(data);
+	expect(cacheCollection.get(data.id)).toEqual(data);
 	expect(cacheCollection.get("id1")).toBe(undefined);
 	expect(cacheCollection.get("id2")).toBe(undefined);
 	expect(cacheCollection.get("id3")).toEqual({ ...data, level: "public" });
