@@ -16,10 +16,11 @@ class ClientCache extends EventEmitter {
 	}
 
 	getClient() {
-		throw new Error("getClient must be overcharged");
+		throw new Error("GetClient must be overcharged");
 	}
 
 	create(id, type, data) {
+		if (!id || !type) throw new Error("id and type are required");
 		if (!this.collections[type])
 			this.collections[type] = new ClientCacheCollection(this.getClient(), type);
 		return this.collections[type].create(id, data);

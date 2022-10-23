@@ -1,4 +1,4 @@
-const io = require("socket.io-client");
+const { io } = require("socket.io-client");
 const { EventEmitter } = require("events");
 const ClientCache = require("./ClientCache.js");
 
@@ -327,12 +327,15 @@ class WebSocketClient extends EventEmitter {
 
 	//=====================================================================================
 	handleGetData(data) {
-		let { type, id } = data;
-		this.saveData(id, type, data);
+		const value = JSON.parse(data);
+		let { type, id } = value;
+		this.cache.create(id, type, value);
 	}
 
 	handleGetAllData(data) {
-		for (let i in data) this.handleGetData(data[i]);
+		const value = JSON.parse(data);
+		for (let i in value.datas)
+			this.cache.create(value.datas[i].id, value.datas[i].type, value.datas[i]);
 	}
 
 	handleUpdateData(data) {
@@ -370,4 +373,4 @@ class WebSocketClient extends EventEmitter {
 	}
 }
 
-module.exports = WebSocketClient
+module.exports = WebSocketClient;

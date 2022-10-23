@@ -15,7 +15,6 @@ test("Client : Basics", async () => {
 	WebSocketPort = serverData.WebSocketPort;
 
 	client = new WebSocketClient(undefined, WebSocketPort);
-	client.saveData = () => {};
 	client.saveUserData = () => {};
 	client.updateData = () => {};
 	client.deleteData = () => {};
