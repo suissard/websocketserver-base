@@ -73,6 +73,7 @@ class Server extends io.Server {
 	setListener(socket, listener, handler) {
 		socket.on(listener, (data) => {
 			try {
+				console.log(`📥 ${listener} :`, data);
 				let authUser = this.collections.users.findUserWithSocket(socket);
 				if (!authUser && !["login", "connexion"].includes(listener))
 					throw new Error("Need authentication");
@@ -105,7 +106,9 @@ class Server extends io.Server {
 	 */
 	handleLogin(authUser, socket, data) {
 		let user = this.collections.users.loginUser(socket, data);
-		user.emit("login", this.collections.users.getInfo(user.getId(), user));
+		const info = this.collections.users.getInfo(user.getId(), user)
+		console.log(`User Login ${user.getToken()}`) //TODO A SUPPRIMER
+		user.emit("login", info);
 	}
 
 	handleUpdateData(authUser, socket, data) {

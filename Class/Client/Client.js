@@ -97,7 +97,7 @@ class WebSocketClient extends EventEmitter {
 	 * @param {Function} handler
 	 */
 	setListeners(nativeListeners, handlers = {}) {
-		console.log("🖥 WebsocketServer start");
+		console.log("🖥 ClientWebsocket start");
 
 		//Event natif
 		for (let listener in nativeListeners) {
