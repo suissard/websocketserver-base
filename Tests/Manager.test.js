@@ -43,26 +43,26 @@ test("ManageableObject : system entries", async () => {
 
 	expect(() =>
 		manager.checkUserAccess(object.getId(), wrongUser, "wrongToken")
-	).toThrowError(`User ${wrongUser.username} don't have access`);
+	).toThrowError(`User ${wrongUser.getId()} don't have access`);
 
 	object.setToken("wrongToken");
 	expect(manager.checkUserAccess(object.getId(), wrongUser, "wrongToken")).toBe(object);
 	object.setToken("newToken");
 	expect(() =>
 		manager.checkUserAccess(object.getId(), wrongUser, "wrongToken")
-	).toThrowError(`User ${wrongUser.username} don't have access`);
+	).toThrowError(`User ${wrongUser.getId()} don't have access`);
 
 	object.setOwner(wrongUser);
 	expect(manager.checkUserAccess(object.getId(), wrongUser, "wrongToken")).toBe(object);
 	object.setOwner(goodUser);
 	expect(() =>
 		manager.checkUserAccess(object.getId(), wrongUser, "wrongToken")
-	).toThrowError(`User ${wrongUser.username} don't have access`);
+	).toThrowError(`User ${wrongUser.getId()} don't have access`);
 
 	object.addUser(user4);
 	expect(
 		() => manager.getPermissions(object.getId(), wrongUser, 7864363).length
-	).toThrowError(`User ${wrongUser.username} don't have access`);
+	).toThrowError(`User ${wrongUser.getId()} don't have access`);
 	expect(manager.getPermissions(object.getId(), user4, 7864363).length).toBe(2);
 	expect(manager.getPermissions(object.getId(), wrongUser, object.getToken()).length).toBe(6);
 	object.deleteUser(user4);
@@ -143,7 +143,7 @@ test("Manager : Check the data access", async () => {
 
 	expect(() =>
 		manager.checkUserAccess(object.getId(), wrongUser, "wrongToken")
-	).toThrowError(`User ${wrongUser.username} don't have access`);
+	).toThrowError(`User ${wrongUser.getId()} don't have access`);
 });
 
 test("Manager : getInfo", async () => {

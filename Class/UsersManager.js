@@ -21,7 +21,10 @@ class UsersManager extends ObjectsManager {
 	 * @returns {User}
 	 */
 	findUserWithToken(token) {
-		for (let [id, user] of this) if (user.getToken() == token) return user;
+		if (!token) return undefined;
+		for (let [id, user] of this) {
+			if (user.getToken() == token) return user;
+		}
 		return false;
 	}
 
@@ -43,9 +46,9 @@ class UsersManager extends ObjectsManager {
 	reconnectUser(socket, user) {
 		//supprimer l'utilisateur inutile des collections
 		for (let [id, value] of this)
-			if (value.socket.id == socket.id) {
-				this.set(id, user);
+			if (value.socket.id == socket.id && value.getId() != user.getId()) {
 				this.delete(user.getId(), user);
+				this.set(id, user);
 				user.setId(id);
 			}
 
@@ -65,7 +68,7 @@ class UsersManager extends ObjectsManager {
 		let { token, id, username } = data;
 		let tokenUser = this.findUserWithToken(token);
 		let socketUser = this.findUserWithSocket(socket);
-	
+
 		//si token correspond a un utilisateur, c'est une reconnexion
 		if (tokenUser || socketUser) {
 			this.update((tokenUser || socketUser).getId(), tokenUser || socketUser, data);
@@ -73,7 +76,7 @@ class UsersManager extends ObjectsManager {
 		}
 
 		let user = this.create(true, { socket, username }); // Creer un utilisateur
-		if (username)this.update(user.getId(), user, data)
+		if (username) this.update(user.getId(), user, data);
 		return user;
 	}
 

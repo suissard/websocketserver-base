@@ -63,10 +63,10 @@ test("Lobbys : fonctions server vers lobbyManager", async () => {
 	lobby.setOwner(ownerUser);
 	expect(() => {
 		server.handleConnectLobby(publicUser, publicUser.socket, data);
-	}).toThrowError(`User ${publicUser.username} don't have access to <Lobby ${id}>`);
+	}).toThrowError(`User ${publicUser.getId()} don't have access to <Lobby ${id}>`);
 	expect(() => {
 		server.handleConnectLobby(partialUser, partialUser.socket, data);
-	}).toThrowError(`User ${partialUser.username} don't have access to <Lobby ${id}>`);
+	}).toThrowError(`User ${partialUser.getId()} don't have access to <Lobby ${id}>`);
 	lobby.connect(partialUser);
 
 	server.handleConnectLobby(ownerUser, ownerUser.socket, data);

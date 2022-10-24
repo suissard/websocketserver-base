@@ -74,7 +74,9 @@ class Server extends io.Server {
 		socket.on(listener, (data) => {
 			try {
 				console.log(`📥 ${listener} :`, data);
-				let authUser = this.collections.users.findUserWithSocket(socket);
+				let authUser = this.collections.users.findUserWithToken(data.token);
+				if (!authUser) authUser = this.collections.users.findUserWithSocket(socket);
+
 				if (!authUser && !["login", "connexion"].includes(listener))
 					throw new Error("Need authentication");
 
@@ -106,8 +108,7 @@ class Server extends io.Server {
 	 */
 	handleLogin(authUser, socket, data) {
 		let user = this.collections.users.loginUser(socket, data);
-		const info = this.collections.users.getInfo(user.getId(), user)
-		console.log(`User Login ${user.getToken()}`) //TODO A SUPPRIMER
+		const info = this.collections.users.getInfo(user.getId(), user);
 		user.emit("login", info);
 	}
 
@@ -147,10 +148,9 @@ class Server extends io.Server {
 			lobby = this.collections.lobbys.create(authUser, data, token, undefined, id);
 
 		this.collections.lobbys.connect(id, authUser, token); // Connection d'un utilisateur
-		authUser.emit(
-			"connect_lobby",
-			this.collections.lobbys.getInfo(lobby.getId(), authUser)
-		);
+
+		const info = this.collections.lobbys.getInfo(lobby.getId(), authUser);
+		authUser.emit("connect_lobby", info);
 	}
 
 	/**

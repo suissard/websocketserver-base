@@ -230,7 +230,7 @@ class ObjectsManager extends Map {
 			throw new Error(`${constructor.name} "${id}" doesn't exist`);
 		} else if (!this.userIsAdmin(user) && !object.checkUserAccess(user, token))
 			throw new Error(
-				`User ${user.username} don't have access to <${constructor.name} ${id}>`
+				`User ${user.getId()} don't have access to <${constructor.name} ${id}>`
 			);
 		return object;
 	}

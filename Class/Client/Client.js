@@ -51,12 +51,10 @@ class WebSocketClient extends EventEmitter {
 			configurable: true,
 			value: () => token,
 		});
-		let func = this.socket.emit.bind(this.socket);
-		this.socket.emit = (event, data) => func(event, { ...data, token });
 	}
 
 	getToken() {
-		throw new Error("This function must be overcharged");
+		return undefined;
 	}
 
 	setMe(data) {
@@ -79,6 +77,9 @@ class WebSocketClient extends EventEmitter {
 		console.log("Connexion à " + this.url);
 		let socket = await io(this.url, { cors: { origins: "*" } });
 		this.socket = socket;
+		const func = this.socket.emit.bind(this.socket);
+		this.socket.emit = (event, data) => func(event, { ...data, token: this.getToken() }); //integre le token dans toute les requetes
+
 		this.setToken(token);
 		this.timeoutConnexion(); //TODO verification régulière ?
 		this.login();
