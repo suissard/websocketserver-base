@@ -21,8 +21,6 @@ test("Auth : Basics", async () => {
 	client.deleteData = () => {};
 	client.notifToApp = () => {};
 	await wait();
-
-
 }, 17000);
 
 test("Auth : identify socket", async () => {
@@ -44,33 +42,116 @@ test("Auth : identify socket", async () => {
 	const goodUser = users[0];
 	const badUser = users[1];
 
-	console.log("goodUser", goodUser.getMe());
-	let test = server.collections.users.get(goodUser.getMe().id)
+	// console.log("goodUser", goodUser.getMe());
+	let test = server.collections.users.get(goodUser.getMe().id);
 
-	goodUser.login('GoodUser', goodUser.lastData.token) //declenceh une disparition de l'utilisateeur
-	badUser.login('BadUser', badUser.lastData.token)
+	goodUser.login("GoodUser", goodUser.lastData.token); //declenceh une disparition de l'utilisateeur
+	badUser.login("BadUser", badUser.lastData.token);
 	await wait();
-	test = server.collections.users.get(goodUser.lastData.id)
+	expect(goodUser.getToken() != badUser.getToken()).toBeTruthy();
 
 	//creation dun lobby
-	goodUser.connectLobby('GoodLobby')
-	badUser.connectLobby('BadLobby')
+	goodUser.connectLobby("GoodLobby");
+	badUser.connectLobby("BadLobby");
 	await wait();
 
-	//acces depuis un autre utilisateur
-	// goodUser.connectLobby('BadLobby')
-	// badUser.connectLobby('GoodLobby')
-	await wait(120);
-	console.log(server.collections.lobbys.get('GoodLobby').getUsers())
-	console.log(server.collections.lobbys.get('BadLobby').getUsers())
-	goodUser.lastData
-	//Acces depuis le owner
+	let goodLobby = server.collections.lobbys.get("GoodLobby");
+	let badLobby = server.collections.lobbys.get("BadLobby");
+	expect(
+		goodLobby.getUsers().find((user) => user.getId() === goodUser.getMe().id)
+	).toBeTruthy();
+	expect(
+		badLobby.getUsers().find((user) => user.getId() === badUser.getMe().id)
+	).toBeTruthy();
 
-	//Tentative de reconnection avec un token invalide
-	
+	// acces depuis un autre utilisateur => refus
+	goodUser.connectLobby("BadLobby");
+	badUser.connectLobby("GoodLobby");
+	await wait();
+	goodLobby = server.collections.lobbys.get("GoodLobby");
+	badLobby = server.collections.lobbys.get("BadLobby");
+	expect(
+		goodLobby.getUsers().find((user) => user.getId() === badUser.getMe().id)
+	).toBeFalsy();
+	expect(
+		badLobby.getUsers().find((user) => user.getId() === goodUser.getMe().id)
+	).toBeFalsy();
+	expect(goodLobby.getUsers().length).toBe(1);
+	expect(badLobby.getUsers().length).toBe(1);
+
+	// acces depuis un autre utilisateur mais avec token
+	goodUser.connectLobby("BadLobby", badLobby.getToken());
+	badUser.connectLobby("GoodLobby", goodLobby.getToken());
+	await wait();
+
+	goodLobby = server.collections.lobbys.get("GoodLobby");
+	badLobby = server.collections.lobbys.get("BadLobby");
+	expect(
+		goodLobby.getUsers().find((user) => user.getId() === badUser.getMe().id)
+	).toBeTruthy();
+	expect(
+		badLobby.getUsers().find((user) => user.getId() === goodUser.getMe().id)
+	).toBeTruthy();
+	expect(goodLobby.getUsers().length).toBe(2);
+	expect(badLobby.getUsers().length).toBe(2);
+
+	//Tentative de reconnection au lobby avec un token invalide
+	goodUser.disconnectLobby("BadLobby");
+	badUser.disconnectLobby("GoodLobby");
+	await wait();
+
+	goodLobby = server.collections.lobbys.get("GoodLobby");
+	badLobby = server.collections.lobbys.get("BadLobby");
+	expect(goodLobby.getUsers().length).toBe(1);
+	expect(badLobby.getUsers().length).toBe(1);
+	expect(
+		goodLobby.getUsers().find((user) => user.getId() === badUser.getMe().id)
+	).toBeFalsy();
+	expect(
+		badLobby.getUsers().find((user) => user.getId() === goodUser.getMe().id)
+	).toBeFalsy();
+
+	goodUser.connectLobby("BadLobby", "azerty");
+	badUser.connectLobby("GoodLobby", "azerty");
+	await wait();
+	goodLobby = server.collections.lobbys.get("GoodLobby");
+	badLobby = server.collections.lobbys.get("BadLobby");
+	expect(
+		goodLobby.getUsers().find((user) => user.getId() === badUser.getMe().id)
+	).toBeFalsy();
+	expect(
+		badLobby.getUsers().find((user) => user.getId() === goodUser.getMe().id)
+	).toBeFalsy();
+	expect(goodLobby.getUsers().length).toBe(1);
+	expect(badLobby.getUsers().length).toBe(1);
+
+	//Et si un utilisateur disparait est ce que le lobby renvoie tjrs le joueur
+		// => oui
+
+
+
+	// const goodToken = goodUser.getToken();
+	// const badToken = badUser.getToken();
+	// goodUser.login("goodUser", badToken);
+	// // badUser.connectLobby('GoodLobby', goodLobby.getToken())
+	// await wait(120);
+	// expect(goodUser.getToken() == badUser.getToken()).toBeTruthy();
+	// expect(goodLobby.getUsers().length).toBe(2);
+	// expect(badLobby.getUsers().length).toBe(2);
+
+
+		//Tentative de reconnection avec un token invalide
+
+
 	//Tentative de reconection avec un token valide
-
+	expect(goodUser.getToken() !== badUser.getToken()).toBeTruthy();
+	// goodUser.connectLobby('BadLobby', badLobby.getToken())
+	// badUser.connectLobby('GoodLobby', goodLobby.getToken())
+	// await wait(120);
+	// goodLobby = server.collections.lobbys.get('GoodLobby')
+	// badLobby = server.collections.lobbys.get('BadLobby')
+	// expect(goodLobby.getUsers().find(user => user.getId() === badUser.getMe().id)).toBeTruthy()
+	// expect(badLobby.getUsers().find(user => user.getId() === goodUser.getMe().id)).toBeTruthy()
 
 	// Verifier priorité de connection : socket et token
-
 }, 10000);

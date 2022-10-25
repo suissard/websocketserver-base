@@ -73,7 +73,7 @@ class Server extends io.Server {
 	setListener(socket, listener, handler) {
 		socket.on(listener, (data) => {
 			try {
-				console.log(`📥 ${listener} :`, data);
+				// console.log(`📥 ${listener} :`, data);
 				let authUser = this.collections.users.findUserWithToken(data.token);
 				if (!authUser) authUser = this.collections.users.findUserWithSocket(socket);
 

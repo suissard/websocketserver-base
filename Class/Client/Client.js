@@ -78,7 +78,8 @@ class WebSocketClient extends EventEmitter {
 		let socket = await io(this.url, { cors: { origins: "*" } });
 		this.socket = socket;
 		const func = this.socket.emit.bind(this.socket);
-		this.socket.emit = (event, data) => func(event, { ...data, token: this.getToken() }); //integre le token dans toute les requetes
+		this.socket.emit = (event, data = {}) =>
+			func(event, { ...data, token: data.token || this.getToken() }); //integre le token dans toute les requetes
 
 		this.setToken(token);
 		this.timeoutConnexion(); //TODO verification régulière ?
