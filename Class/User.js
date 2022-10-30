@@ -132,7 +132,7 @@ class User extends ManageableObject {
 	 */
 	shareLobby(user) {
 		for (let [id, lobby] of this.lobbys) {
-			if (lobby.userIsPresent(user)) return lobby;
+			if (lobby.userIsPresent(user.getId())) return lobby;
 		}
 		return false;
 	}

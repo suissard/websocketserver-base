@@ -297,7 +297,7 @@ class ManageableObject {
 	 */
 	addUser(user) {
 		const newUsers = this.getUsers();
-		if (!this.userIsPresent(user)) {
+		if (!this.userIsPresent(user.getId())) {
 			newUsers.push(user);
 			this.setUsers(newUsers);
 		}
@@ -311,7 +311,7 @@ class ManageableObject {
 		const newUsers = this.getUsers();
 		for (let i in users) {
 			let user = users[i];
-			if (!this.userIsPresent(user)) newUsers.push(user);
+			if (!this.userIsPresent(user.getId())) newUsers.push(user);
 		}
 		this.setUsers(newUsers);
 	}
@@ -321,7 +321,7 @@ class ManageableObject {
 	 */
 	deleteUser(user) {
 		const newUsers = this.getUsers();
-		if (this.userIsPresent(user)) {
+		if (this.userIsPresent(user.getId())) {
 			newUsers.splice(
 				newUsers.findIndex((x) => x.getId() == user.getId()),
 				1
@@ -337,7 +337,7 @@ class ManageableObject {
 		const newUsers = this.getUsers();
 		for (let i = newUsers.length - 1; i >= 0; i--) {
 			let user = newUsers[i];
-			if (this.userIsPresent(user)) {
+			if (this.userIsPresent(user.getId())) {
 				newUsers.splice(i, 1);
 			}
 		}
@@ -386,9 +386,8 @@ class ManageableObject {
 	 * @param {User} user
 	 * @returns {Boolean}
 	 */
-	userIsOwner(user) {
-		if (!user) return false;
-		return user.getId() === this.getOwner().getId();
+	userIsOwner(userId) {
+		return userId === this.getOwner().getId();
 	}
 
 	/**
@@ -396,21 +395,21 @@ class ManageableObject {
 	 * @param {User} user
 	 * @returns {Boolean}
 	 */
-	userIsPresent(user) {
-		return this.getUsers().find((x) => x.getId() === user.getId());
+	userIsPresent(userId) {
+		return this.getUsers().find((x) => x.getId() === userId);
 	}
 
 	/**
 	 * Est ce que utilisateur et token permettte l'acces aux données
-	 * @param {User} user
+	 * @param {tring} userId
 	 * @param {String} token
 	 * @returns {Boolean}
 	 */
-	checkUserAccess(user, token) {
+	checkUserAccess(userId, token) {
 		if (
 			!this.getVisibility() &&
-			!this.userIsPresent(user) &&
-			!this.userIsOwner(user) &&
+			!this.userIsPresent(userId) &&
+			!this.userIsOwner(userId) &&
 			!this.tokenGrantAccess(token)
 		)
 			return false;

@@ -16,7 +16,7 @@ test("Server : login & logout et users", async () => {
 	expect(findWithNoAutorization).toBeFalsy();
 	const findWithGoodUser = server.collections.users.find(() => {
 		return true;
-	}, userServerSide);
+	}, userServerSide.getId());
 	expect(findWithGoodUser).toBe(userServerSide);
 
 	const findWithToken = server.collections.users.find(

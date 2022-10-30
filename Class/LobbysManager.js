@@ -19,7 +19,7 @@ class LobbysManager extends ObjectsManager {
 	 * @param {String || undefined} token
 	 */
 	connect(id, user, token) {
-		let lobby = this.checkUserAccess(id, user, token);
+		let lobby = this.checkUserAccess(id, user.getId(), token);
 		if (lobby.getUsers().length >= lobby.sizeLimit && lobby.sizeLimit)
 			throw new Error(`Lobby ${lobby.getId()} is full`);
 		lobby.connect(user);

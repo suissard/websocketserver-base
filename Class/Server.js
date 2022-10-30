@@ -165,7 +165,7 @@ class Server extends io.Server {
 		let {
 			lobby: { id, token },
 		} = data;
-		let lobby = this.collections.lobbys.checkUserAccess(id, authUser, token);
+		let lobby = this.collections.lobbys.checkUserAccess(id, authUser.getId(), token);
 		lobby.disconnect(authUser); // Déconnection d'un utilisateur
 	}
 
@@ -180,7 +180,7 @@ class Server extends io.Server {
 			lobby: { id, token },
 			content,
 		} = data;
-		let lobbyServer = this.collections.lobbys.checkUserAccess(id, authUser, token);
+		let lobbyServer = this.collections.lobbys.checkUserAccess(id, authUser.getId(), token);
 		return lobbyServer.createMessage(content, authUser);
 	}
 
@@ -193,12 +193,12 @@ class Server extends io.Server {
 		let { lobby, message, token } = data;
 		const lobbyObject = this.collections.lobbys.checkUserAccess(
 			lobby.id,
-			authUser,
+			authUser.getId(),
 			lobby.token
 		);
 		const messageObject = lobbyObject.messages.checkUserAccess(
 			message.id,
-			authUser,
+			authUser.getId(),
 			lobby.token
 		);
 		messageObject.addReceived(authUser);
@@ -213,12 +213,12 @@ class Server extends io.Server {
 		let { lobby, message, token } = data;
 		const lobbyObject = this.collections.lobbys.checkUserAccess(
 			lobby.id,
-			authUser,
+			authUser.getId(),
 			lobby.token
 		);
 		const messageObject = lobbyObject.messages.checkUserAccess(
 			message.id,
-			authUser,
+			authUser.getId(),
 			lobby.token
 		);
 		messageObject.addViewed(authUser);
@@ -233,7 +233,7 @@ class Server extends io.Server {
 		let { lobby, token } = data;
 		const lobbyObject = this.collections.lobbys.checkUserAccess(
 			lobby.id,
-			authUser,
+			authUser.getId(),
 			token
 		);
 

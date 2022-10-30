@@ -38,25 +38,25 @@ test("ManageableObject : Basic data", async () => {
 
 test("ManageableObject : system entries", async () => {
 	object.setVisibility(true);
-	expect(manager.checkUserAccess(object.getId(), wrongUser, "wrongToken")).toBe(object);
+	expect(manager.checkUserAccess(object.getId(), wrongUser.getId(), "wrongToken")).toBe(object);
 	object.setVisibility(false);
 
 	expect(() =>
-		manager.checkUserAccess(object.getId(), wrongUser, "wrongToken")
+		manager.checkUserAccess(object.getId(), wrongUser.getId(), "wrongToken")
 	).toThrowError(`User ${wrongUser.getId()} don't have access`);
 
 	object.setToken("wrongToken");
-	expect(manager.checkUserAccess(object.getId(), wrongUser, "wrongToken")).toBe(object);
+	expect(manager.checkUserAccess(object.getId(), wrongUser.getId(), "wrongToken")).toBe(object);
 	object.setToken("newToken");
 	expect(() =>
-		manager.checkUserAccess(object.getId(), wrongUser, "wrongToken")
+		manager.checkUserAccess(object.getId(), wrongUser.getId(), "wrongToken")
 	).toThrowError(`User ${wrongUser.getId()} don't have access`);
 
 	object.setOwner(wrongUser);
-	expect(manager.checkUserAccess(object.getId(), wrongUser, "wrongToken")).toBe(object);
+	expect(manager.checkUserAccess(object.getId(), wrongUser.getId(), "wrongToken")).toBe(object);
 	object.setOwner(goodUser);
 	expect(() =>
-		manager.checkUserAccess(object.getId(), wrongUser, "wrongToken")
+		manager.checkUserAccess(object.getId(), wrongUser.getId(), "wrongToken")
 	).toThrowError(`User ${wrongUser.getId()} don't have access`);
 
 	object.addUser(user4);
@@ -77,24 +77,24 @@ test("ManageableObject : gestion utilisateurs", async () => {
 	manager.useAction( object.getId(), goodUser, undefined, "addUser", [user3]);
 	manager.useAction( object.getId(), goodUser, undefined, "addUser", [user3]);
 	expect(object.getUsers().length).toBe(1);
-	expect(object.userIsPresent(user1)).toBeFalsy();
-	expect(object.userIsPresent(user3)).toBeTruthy();
+	expect(object.userIsPresent(user1.getId())).toBeFalsy();
+	expect(object.userIsPresent(user3.getId())).toBeTruthy();
 
 	object.addUsers([user1, user2]);
 	expect(object.getUsers().length).toBe(3);
 	object.addUsers([user1, user2]);
 	expect(object.getUsers().length).toBe(3);
-	expect(object.userIsPresent(user4)).toBeFalsy();
-	expect(object.userIsPresent(user3)).toBeTruthy();
+	expect(object.userIsPresent(user4.getId())).toBeFalsy();
+	expect(object.userIsPresent(user3.getId())).toBeTruthy();
 
 	object.deleteUser(user2);
 	expect(object.getUsers().length).toBe(2);
-	expect(object.userIsPresent(user2)).toBeFalsy();
-	expect(object.userIsPresent(user3)).toBeTruthy();
+	expect(object.userIsPresent(user2.getId())).toBeFalsy();
+	expect(object.userIsPresent(user3.getId())).toBeTruthy();
 
 	object.deleteUsers([user1, user3]);
 	expect(object.getUsers().length).toBe(0);
-	expect(object.userIsPresent(user3)).toBeFalsy();
+	expect(object.userIsPresent(user3.getId())).toBeFalsy();
 });
 
 test("Manager : Experiment the data creation, get, find and findAll", async () => {
@@ -107,7 +107,7 @@ test("Manager : Experiment the data creation, get, find and findAll", async () =
 
 	const objectFind = await manager.find(
 		(obj) => obj.getId() == object.getId(),
-		object.getOwner(),
+		object.getOwner().getId(),
 		null
 	);
 	expect(objectFind).toBe(object);
@@ -116,7 +116,7 @@ test("Manager : Experiment the data creation, get, find and findAll", async () =
 		(obj) => {
 			return obj.getOwner().getId() == goodUser.getId();
 		},
-		object.getOwner(),
+		object.getOwner().getId(),
 		null
 	);
 	expect(objectFindAll[0].getOwner()).toBe(goodUser);
@@ -130,19 +130,19 @@ test("Manager : Experiment the data creation, get, find and findAll", async () =
 	expect(objectFindAllWithToken[0].getOwner()).toBe(object.getOwner());
 	expect(objectFindAllWithToken.length).toBe(1);
 
-	const objectFindAllWithOwner = await manager.findAll(undefined, object.getOwner());
+	const objectFindAllWithOwner = await manager.findAll(undefined, object.getOwner().getId());
 	expect(objectFindAllWithOwner[0].getOwner()).toBe(object.getOwner());
 	expect(objectFindAllWithOwner.length).toBeLessThan(numberOfObject);
 });
 
 test("Manager : Check the data access", async () => {
-	expect(manager.checkUserAccess(object.getId(), wrongUser, object.getToken())).toBe(
+	expect(manager.checkUserAccess(object.getId(), wrongUser.getId(), object.getToken())).toBe(
 		object
 	);
-	expect(manager.checkUserAccess(object.getId(), adminUser, "wrongToken")).toBe(object);
+	expect(manager.checkUserAccess(object.getId(), adminUser.getId(), "wrongToken")).toBe(object);
 
 	expect(() =>
-		manager.checkUserAccess(object.getId(), wrongUser, "wrongToken")
+		manager.checkUserAccess(object.getId(), wrongUser.getId(), "wrongToken")
 	).toThrowError(`User ${wrongUser.getId()} don't have access`);
 });
 

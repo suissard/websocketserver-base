@@ -99,10 +99,10 @@ test("Lobbys : fonctions server vers lobbyManager", async () => {
 	await wait();
 	expect(userClientSide.lastEvent).toBe("connect_lobby");
 	expect(userClientSide.lastData.id).toBe(id);
-	expect(lobby.userIsPresent(partialUser)).toBeTruthy();
-	expect(lobby.userIsPresent(ownerUser)).toBeTruthy();
-	expect(lobby.userIsPresent(adminUser)).toBeTruthy();
-	expect(lobby.userIsPresent(userServerSide)).toBeTruthy();
+	expect(lobby.userIsPresent(partialUser.getId())).toBeTruthy();
+	expect(lobby.userIsPresent(ownerUser.getId())).toBeTruthy();
+	expect(lobby.userIsPresent(adminUser.getId())).toBeTruthy();
+	expect(lobby.userIsPresent(userServerSide.getId())).toBeTruthy();
 
 	// "disconnect_lobby",
 	server.handleDisconnectLobby(partialUser, partialUser.socket, data);

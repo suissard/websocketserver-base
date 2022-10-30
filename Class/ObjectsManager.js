@@ -136,7 +136,7 @@ class ObjectsManager extends Map {
 		if (!id || !user) throw Error(`An ID and a user must be specified`);
 		const object = this.get(id);
 		if (!object) throw Error(`${constructor.name} "${id}" doesn't exist`);
-		if (!object.userIsOwner(user) || this.userIsAdmin(user))
+		if (!object.userIsOwner(user.getId()) || this.userIsAdmin(user.getId()))
 			throw new Error(`${user.username} is not the owner`);
 		object.update(data);
 
@@ -153,7 +153,7 @@ class ObjectsManager extends Map {
 	delete(id, user) {
 		if (id === undefined || !user) throw Error(`An ID and a user must be specified`);
 		const object = super.get(id);
-		if (!object.userIsOwner(user)) throw new Error(`${user.username} is not the owner`);
+		if (!object.userIsOwner(user.getId())) throw new Error(`${user.username} is not the owner`);
 		object.beforeDeleted();
 		super.delete(id);
 		object.deleted();
@@ -166,6 +166,7 @@ class ObjectsManager extends Map {
 	 */
 	useAction( id, user, token, action, args,) {
 		const permissions = this.getPermissions(id, user, token);
+		if (!permissions.includes(action)) throw new Error(`Action "${action}" is not allowed`);
 		const object = this.get(id);
 		object[action](...args);
 	}
@@ -178,7 +179,7 @@ class ObjectsManager extends Map {
 	 * @returns {Object}
 	 */
 	getPermissions(id, user, token) {
-		const object = this.checkUserAccess(id, user, token);
+		const object = this.checkUserAccess(id, user.getId(), token);
 		if (!object) return [];
 
 		let result = [];
@@ -187,9 +188,9 @@ class ObjectsManager extends Map {
 			for (let i in vals) if (!result.includes(vals[i])) result.push(vals[i]);
 		};
 
-		if (object.userIsOwner(user)) pushIfUnique(this.permissions.owner);
+		if (object.userIsOwner(user.getId())) pushIfUnique(this.permissions.owner);
 		if (object.tokenGrantAccess(token)) pushIfUnique(this.permissions.token);
-		if (object.userIsPresent(user)) pushIfUnique(this.permissions.users);
+		if (object.userIsPresent(user.getId())) pushIfUnique(this.permissions.users);
 		return result;
 	}
 
@@ -205,12 +206,12 @@ class ObjectsManager extends Map {
 		if (!object) throw new Error(`${this.getConstructor().name} ${id} don't exist`);
 		var data;
 		if (
-			object.userIsOwner(user) ||
+			object.userIsOwner(user?.getId()) ||
 			object.tokenGrantAccess(token) ||
-			this.userIsAdmin(user)
+			this.userIsAdmin(user?.getId())
 		)
 			data = object.getPrivateInfo();
-		else if (object.userIsPresent(user)) data = object.getPartialInfo();
+		else if (object.userIsPresent(user.getId())) data = object.getPartialInfo();
 		else if (object.getVisibility()) data = object.getPublicInfo();
 		if (data) data.permissions = this.getPermissions(id, user, token);
 		return data;
@@ -218,7 +219,7 @@ class ObjectsManager extends Map {
 
 	getInfos(user, token) {
 		let result = [];
-		let data = this.findAll(undefined, user, token);
+		let data = this.findAll(undefined, user.getId(), token);
 		for (let [id, obj] of this) {
 			let info = this.getInfo(id, user, token);
 
@@ -233,15 +234,15 @@ class ObjectsManager extends Map {
 	 * @param {String} token Token pour acceder a l'objet
 	 * @returns {ManageableObject}
 	 */
-	checkUserAccess(id, user, token) {
-		if (id === undefined || !user) throw Error(`An ID and a user must be specified`);
+	checkUserAccess(id, userId, token) {
+		if (id === undefined || !userId) throw Error(`An ID and a user must be specified`);
 		const object = this.get(id);
 		let constructor = this.getConstructor();
 		if (!object) {
 			throw new Error(`${constructor.name} "${id}" doesn't exist`);
-		} else if (!this.userIsAdmin(user) && !object.checkUserAccess(user, token))
+		} else if (!this.userIsAdmin(userId) && !object.checkUserAccess(userId, token))
 			throw new Error(
-				`User ${user.getId()} don't have access to <${constructor.name} ${id}>`
+				`User ${userId} don't have access to <${constructor.name} ${id}>`
 			);
 		return object;
 	}
@@ -251,9 +252,8 @@ class ObjectsManager extends Map {
 	 * @param {User} user
 	 * @returns {Boolean}
 	 */
-	userIsAdmin(user) {
-		if (!user) return false;
-		return this.adminsId.includes(user.getId());
+	userIsAdmin(userId) {
+		return this.adminsId.includes(userId);
 	}
 
 	/**
@@ -263,10 +263,11 @@ class ObjectsManager extends Map {
 	 * @param {Function} func Function pour valider ou non un résultat
 	 * @returns {ManageableObject}
 	 */
-	find(func, user, token) {
+	find(func, userId, token) {
+		if (!userId && !token) return;
 		for (let [id, obj] of this) {
 			if (func(obj))
-				if (obj.checkUserAccess(user, token) || this.userIsAdmin(user)) return obj;
+				if (obj.checkUserAccess(userId, token) || this.userIsAdmin(userId)) return obj;
 		}
 	}
 
@@ -277,11 +278,11 @@ class ObjectsManager extends Map {
 	 * @param {Function} func Function pour valider ou non un résultat
 	 * @returns {Array}
 	 */
-	findAll(func = () => true, user, token) {
+	findAll(func = () => true, userId, token) {
 		const result = [];
 		for (let [id, obj] of this) {
 			if (func(obj))
-				if (obj.checkUserAccess(user, token) || this.userIsAdmin(user)) result.push(obj);
+				if (obj.checkUserAccess(userId, token) || this.userIsAdmin(userId)) result.push(obj);
 		}
 		return result;
 	}
