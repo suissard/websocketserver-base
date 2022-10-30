@@ -227,6 +227,13 @@ class WebSocketClient extends EventEmitter {
 		await this.socket.emit("get_all_data", { token });
 	}
 
+	async updateData(id, type, data) {
+		await this.socket.emit("update_data", { id, type, data });
+	}
+
+	async useAction( id, type, actionToken, action, actionArgs) {
+		await this.socket.emit("use_action", { id, type, action, actionArgs, actionToken });
+	}
 	// ======= REACTIONS AUX EVENTS ====================================================================
 	/**
 	 * Reception d'un evenement login
@@ -252,7 +259,8 @@ class WebSocketClient extends EventEmitter {
 	 * @param {*} data
 	 */
 	handleConnectLobby(data) {
-		if (this.cache.collections.lobbys.get(data.id)) this.cache.create(data.id, data.type, data);
+		let lobby = this.cache.collections.lobbys ? this.cache.collections.lobbys.get(data.id) : undefined
+		if (lobby) this.cache.create(data.id, data.type, data);
 		else this.cache.update(data.id, data.type, data);
 
 		let userData = this.getMe();

@@ -29,7 +29,9 @@ class Server extends io.Server {
 
 			get_data: this.handleGetData,
 			get_all_data: this.handleGetAllData,
-			update_Data: this.handleUpdateData,
+			update_data: this.handleUpdateData,
+
+			use_action: this.handleUseAction,
 		};
 
 		this.handlers = handlers;
@@ -79,7 +81,7 @@ class Server extends io.Server {
 				let authUser = this.collections.users.findUserWithToken(data.token);
 				if (!authUser) authUser = this.collections.users.findUserWithSocket(socket);
 
-				if (!authUser && !["login", "connexion"].includes(listener))
+				if (!authUser && !["login", "connexion", 'disconnect'].includes(listener))
 					throw new Error("Need authentication");
 				console.log(
 					`📥 ${listener == "login" && authUser ? "reconnexion" : listener} :`,
@@ -116,12 +118,6 @@ class Server extends io.Server {
 		let user = this.collections.users.loginUser(socket, data);
 		const info = this.collections.users.getInfo(user.getId(), user);
 		user.emit("login", info);
-	}
-
-	handleUpdateData(authUser, socket, data) {
-		let { token, type, id } = data;
-		if (!this.collections[type]) throw new Error(`Le type "${type}" n'existe pas`);
-		this.collections[type].update(id, authUser, data);
 	}
 
 	/**
@@ -257,28 +253,17 @@ class Server extends io.Server {
 			authUser.emit("get_all_data", JSON.stringify({ type, datas: result }));
 		}
 	}
-
-	//EVENEMETN DE TOPIC ======================================================
-	handlePublishTopic(authUser, socket, data) {
-		console.log("handlePublishTopic", data);
-		let { topic, value } = data;
-		this.client.publish(topic, value);
+	
+	handleUpdateData(authUser, socket, data) {
+		let { token, type, id } = data;
+		if (!this.collections[type]) throw new Error(`Le type "${type}" n'existe pas`);
+		this.collections[type].update(id, authUser, data);
 	}
-	handleConnectedObjectAction(authUser, socket, data) {
-		console.log("handleConnectedObjectAction", data);
-		let { id, type, action, actionID, args } = data;
-		let connectedObject = this.client.ConnectedObjects[type].get(id);
-		if (!connectedObject) throw new Error("L'objet n'est pas référencé", authUser);
-		try {
-			connectedObject
-				.useAction(action, actionID, args, authUser)
-				.then((response) => authUser.emit("awaitResponse", response))
-				.catch((err) => {
-					authUser.emit("error", err);
-				});
-		} catch (e) {
-			throw new Error(e.message, authUser);
-		}
+
+	handleUseAction(authUser, socket, data) {
+		let {  type, id, action, actionArgs, actionToken } = data;
+		if (!this.collections[type]) throw new Error(`Le type "${type}" n'existe pas`);
+		this.collections[type].useAction(id, authUser, actionToken, action, actionArgs);
 	}
 }
 

@@ -164,9 +164,9 @@ class ObjectsManager extends Map {
 	 * @param {String} action
 	 * @param {Array} args
 	 */
-	makeAction(action, args, id, user, token) {
-		const object = this.checkUserAccess(id, user, token);
-		// TODO Verifier liste d'permissions réalisables
+	useAction( id, user, token, action, args,) {
+		const permissions = this.getPermissions(id, user, token);
+		const object = this.get(id);
 		object[action](...args);
 	}
 

@@ -72,10 +72,10 @@ test("ManageableObject : gestion utilisateurs", async () => {
 	expect(object.getUsers()).toBeInstanceOf(Array);
 	expect(object.getUsers().length).toBe(0);
 
-	manager.makeAction("addUser", [user3], object.getId(), goodUser);
+	manager.useAction(object.getId(), goodUser, undefined,"addUser", [user3]);
 	expect(object.getUsers().length).toBe(1);
-	manager.makeAction("addUser", [user3], object.getId(), goodUser);
-	manager.makeAction("addUser", [user3], object.getId(), goodUser);
+	manager.useAction( object.getId(), goodUser, undefined, "addUser", [user3]);
+	manager.useAction( object.getId(), goodUser, undefined, "addUser", [user3]);
 	expect(object.getUsers().length).toBe(1);
 	expect(object.userIsPresent(user1)).toBeFalsy();
 	expect(object.userIsPresent(user3)).toBeTruthy();
