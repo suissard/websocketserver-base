@@ -43,7 +43,7 @@ test("Lobbys : Creer lobbyManager et lobby", async () => {
 		userServerSide,
 		{ description, sizeLimit },
 		undefined,
-		undefined,
+		false,
 		id
 	);
 	expect(lobby.sizeLimit).toBe(sizeLimit);

@@ -13,7 +13,7 @@ const { user1, user2, user3, user4, adminUser, data } = {
 };
 const numberOfObject = 1000; // min 2; max 1000000
 
-const manager = new ObjectsManager([adminUser.getId()]);
+const manager = new ObjectsManager(true, [adminUser.getId()]);
 
 for (let i = 0; i < numberOfObject; i++)
 	manager.create(i % 2 ? user1 : user2, data, false, false);

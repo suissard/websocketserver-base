@@ -7,8 +7,8 @@ const ObjectsManager = require("./ObjectsManager.js");
  * @returns {LobbysManager}
  */
 class LobbysManager extends ObjectsManager {
-	constructor(adminsId = []) {
-		super(adminsId, undefined, Lobby);
+	constructor(server, adminsId = [] ) {
+		super(server, adminsId, undefined, Lobby );
 		return this;
 	}
 

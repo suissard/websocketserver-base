@@ -126,6 +126,7 @@ class WebSocketClient extends EventEmitter {
 			this.lastData = data;
 			this.lastEvent = listener;
 			try {
+				this.emit(listener, data);
 				handler.bind(this, data)();
 			} catch (error) {
 				console.error(`ClientError ${listener}`, data, error);
@@ -251,7 +252,8 @@ class WebSocketClient extends EventEmitter {
 	 * @param {*} data
 	 */
 	handleConnectLobby(data) {
-		this.cache.update(data.id, data.type, data);
+		if (this.cache.collections.lobbys.get(data.id)) this.cache.create(data.id, data.type, data);
+		else this.cache.update(data.id, data.type, data);
 
 		let userData = this.getMe();
 		if (userData && !userData.data.lobbys.includes(data.id)) {

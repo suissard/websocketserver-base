@@ -6,9 +6,8 @@ class UsersManager extends ObjectsManager {
 	/**
 	 * Gere une collection d'utilisateurs (source de verité, instance unique)
 	 */
-	constructor(lobbysManager, adminsId = []) {
-		super(adminsId, undefined, User);
-		this.lobbys = lobbysManager;
+	constructor(server, adminsId = [] ) {
+		super(server, adminsId, undefined, User );
 	}
 
 	getIdCalculator() {

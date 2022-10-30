@@ -288,7 +288,7 @@ class ManageableObject {
 	 * @param {Array} users
 	 */
 	setUsers(users = []) {
-		return this.setProperty("getUsers", users);
+		return this.setProperty("getUsers", users);	
 	}
 
 	/**

@@ -9,18 +9,18 @@ const Message = require("./Message.js");
  */
 class MessagesManager extends ObjectsManager {
 	constructor(adminsId) {
-		super(adminsId, undefined, Message);
+		super(true, adminsId, undefined, Message);
 	}
 
-		/**
+	/**
 	 * Récuperer les messages du lobby, par ordre croissant de date de création
 	 * @returns {Array}
 	 */
-		 getMessages() {
-			let messageArray = [];
-			this.forEach((x) => messageArray.push(x.getPartialInfo()));
-			return messageArray.sort((a, b) => a.getCreatedAt() - b.getCreatedAt());
-		}
+	getMessages() {
+		let messageArray = [];
+		this.forEach((x) => messageArray.push(x.getPartialInfo()));
+		return messageArray.sort((a, b) => a.getCreatedAt() - b.getCreatedAt());
+	}
 }
 
 module.exports = MessagesManager;

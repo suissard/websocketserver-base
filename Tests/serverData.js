@@ -23,7 +23,7 @@ const createManager = function (
 		publicUser: new User(3, {}, "123456789", { username: "publicUserName" }),
 		adminUser: new User(99, {}, "987654321", { username: "adminUserName" }),
 	};
-	const manager = new managerConstructor([adminUser.getId()]);
+	const manager = new managerConstructor(true,[adminUser.getId()]);
 	const token = manager.generateToken();
 
 	for (let i = 0; i < numberOfObject; i++) manager.create(ownerUser, data, token);

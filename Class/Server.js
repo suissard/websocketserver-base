@@ -34,7 +34,10 @@ class Server extends io.Server {
 
 		this.handlers = handlers;
 
-		this.collections = { users: new UsersManager(), lobbys: new LobbysManager() };
+		this.collections = {
+			users: new UsersManager(this),
+			lobbys: new LobbysManager(this),
+		};
 
 		this.setListeners(this.nativeListeners, handlers);
 	}
@@ -73,13 +76,16 @@ class Server extends io.Server {
 	setListener(socket, listener, handler) {
 		socket.on(listener, (data) => {
 			try {
-				// console.log(`📥 ${listener} :`, data);
 				let authUser = this.collections.users.findUserWithToken(data.token);
 				if (!authUser) authUser = this.collections.users.findUserWithSocket(socket);
 
 				if (!authUser && !["login", "connexion"].includes(listener))
 					throw new Error("Need authentication");
-
+				console.log(
+					`📥 ${listener == "login" && authUser ? "reconnexion" : listener} :`,
+					authUser ? `user ${authUser.getId()}` : "anonymous",
+					socket.request.connection.remoteAddress
+				);
 				handler.bind(this, authUser, socket, data)();
 			} catch (error) {
 				console.error(
@@ -145,7 +151,7 @@ class Server extends io.Server {
 
 		let lobby = this.collections.lobbys.get(id);
 		if (!lobby)
-			lobby = this.collections.lobbys.create(authUser, data, token, undefined, id);
+			lobby = this.collections.lobbys.create(authUser, data, token, data.lobby.visibility, id);
 
 		this.collections.lobbys.connect(id, authUser, token); // Connection d'un utilisateur
 

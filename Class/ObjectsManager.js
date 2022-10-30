@@ -10,13 +10,15 @@ const ManageableObject = require("./ManageableObject.js");
  * @returns {ObjectsManager}
  */
 class ObjectsManager extends Map {
-	constructor(adminsId = [], permissions, constructor = ManageableObject) {
+	constructor(server, adminsId = [], permissions, constructor = ManageableObject) {
+		if (!server) throw new Error("A server must be specified");
 		super();
 		this.setConstructor(constructor);
 
 		this.adminsId = adminsId;
-		this.permissions;
+		this.permissions; // TODO moche et correspond aps aua standarad getter / setter
 		this.setPermissions(permissions);
+		this.setServer(server);
 	}
 	/**
 	 * Renvoie le constructor des object du manager
@@ -36,10 +38,19 @@ class ObjectsManager extends Map {
 	 * @param {Class} constructor
 	 */
 	setConstructor(constructor = ManageableObject) {
-		Object.defineProperty(this, "getConstructor", {
+		return this.setProperty("getConstructor", constructor);
+	}
+
+	setProperty(propertyName, value) {
+		Object.defineProperty(this, propertyName, {
 			enumerable: false,
-			value: () => constructor,
+			configurable: true,
+			value: () => value,
 		});
+	}
+
+	setServer(server) {
+		this.setProperty("getServer", server);
 	}
 
 	/**
