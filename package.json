@@ -1,6 +1,6 @@
 {
 	"name": "websocketserver-base",
-	"version": "1.0.9",
+	"version": "1.0.10",
 	"description": "WebSocket system, to connect users and allow them to tchating and handle/share private data",
 	"main": "index.js",
 	"type": "commonjs",
