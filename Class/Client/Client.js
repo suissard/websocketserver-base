@@ -147,10 +147,13 @@ class WebSocketClient extends EventEmitter {
 
 	// ======= EMETRE DES EVENTS ====================================================================
 	/**
-	 * Envoie une requete de login avec priorité au données en local si pas d'argument fournit
+	 * Sends a login request to the server with credentials.
+	 * @param {Object} credentials
+	 * @param {string} credentials.identifier - The username or email.
+	 * @param {string} credentials.password - The password.
 	 */
-	login(username, token) {
-		this.socket.emit("login", { username, token });
+	login(credentials = {}) {
+		this.socket.emit("login", credentials);
 	}
 
 	logout() {

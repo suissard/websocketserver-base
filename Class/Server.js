@@ -76,19 +76,19 @@ class Server extends io.Server {
 	 * @param {Function} handler
 	 */
 	setListener(socket, listener, handler) {
-		socket.on(listener, (data) => {
+		socket.on(listener, async (data) => {
 			try {
 				let authUser = this.collections.users.findUserWithToken(data.token);
 				if (!authUser) authUser = this.collections.users.findUserWithSocket(socket);
 
-				if (!authUser && !["login", "connexion", 'disconnect'].includes(listener))
+				if (!authUser && !["login", "connexion", "disconnect"].includes(listener))
 					throw new Error("Need authentication");
 				console.log(
 					`📥 ${listener == "login" && authUser ? "reconnexion" : listener} :`,
 					authUser ? `user ${authUser.getId()}` : "anonymous",
 					socket.request.connection.remoteAddress
 				);
-				handler.bind(this, authUser, socket, data)();
+				await handler.bind(this, authUser, socket, data)();
 			} catch (error) {
 				console.error(
 					`ERROR ${listener} from ${socket.request.connection.remoteAddress}`,
@@ -114,10 +114,18 @@ class Server extends io.Server {
 	 * @param {Socket} socket
 	 * @param {Object} data
 	 */
-	handleLogin(authUser, socket, data) {
-		let user = this.collections.users.loginUser(socket, data);
-		const info = this.collections.users.getInfo(user.getId(), user);
-		user.emit("login", info);
+	async handleLogin(authUser, socket, data) {
+		try {
+			const user = await this.collections.users.loginUser(socket, data);
+			if (user) {
+				const info = this.collections.users.getInfo(user.getId(), user);
+				user.emit("login", info);
+			}
+		} catch (error) {
+			// Emit an error event back to the specific client
+			socket.emit("login_error", { message: error.message });
+			console.error("Login failed for socket:", socket.id, error.message);
+		}
 	}
 
 	/**

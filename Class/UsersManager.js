@@ -1,6 +1,9 @@
 const uuidv4 = require("uuid").v4;
+const axios = require("axios");
 const User = require("./User.js");
 const ObjectsManager = require("./ObjectsManager.js");
+
+const STRAPI_URL = "http://localhost:1337";
 
 class UsersManager extends ObjectsManager {
 	/**
@@ -58,25 +61,65 @@ class UsersManager extends ObjectsManager {
 	}
 
 	/**
-	 * Connection d'un utilisateur : relier socket.id a un User (ancien ou nouveau)
-	 * @param {Socket} socket
-	 * @param {*} token
-	 * @param {*} username
+	 * Find a user by their Strapi ID.
+	 * @param {number} strapiId
+	 * @returns {User|undefined}
 	 */
-	loginUser(socket, data) {
-		let { token, id, username } = data;
-		let tokenUser = this.findUserWithToken(token);
-		let socketUser = this.findUserWithSocket(socket);
+	findUserByStrapiId(strapiId) {
+		if (!strapiId) return undefined;
+		for (let [id, user] of this) {
+			if (user.strapiId === strapiId) return user;
+		}
+		return undefined;
+	}
 
-		//si token correspond a un utilisateur, c'est une reconnexion
-		if (tokenUser || socketUser) {
-			this.update((tokenUser || socketUser).getId(), tokenUser || socketUser, data);
-			return this.reconnectUser(socket, tokenUser || socketUser);
+	/**
+	 * Authenticates a user against the Strapi API.
+	 * Creates a new user if they don't exist, or reconnects them if they do.
+	 * @param {Socket} socket
+	 * @param {Object} data
+	 * @param {string} data.identifier - The username or email for Strapi.
+	 * @param {string} data.password - The password for Strapi.
+	 */
+	async loginUser(socket, data) {
+		const { identifier, password } = data;
+		if (!identifier || !password) {
+			throw new Error("Identifier and password are required.");
 		}
 
-		let user = this.create(true, { socket, username }); // Creer un utilisateur
-		if (username) this.update(user.getId(), user, data);
-		return user;
+		try {
+			const response = await axios.post(`${STRAPI_URL}/api/auth/local`, {
+				identifier,
+				password,
+			});
+
+			const { jwt, user: strapiUser } = response.data;
+
+			let existingUser = this.findUserByStrapiId(strapiUser.id);
+
+			if (existingUser) {
+				// User exists, it's a reconnection.
+				existingUser.token = jwt; // Update the token
+				this.update(existingUser.getId(), existingUser, {
+					username: strapiUser.username,
+				});
+				return this.reconnectUser(socket, existingUser);
+			} else {
+				// User does not exist, create a new one.
+				const user = this.create(true, {
+					socket,
+					token: jwt,
+					strapiId: strapiUser.id,
+					username: strapiUser.username,
+				});
+				return user;
+			}
+		} catch (error) {
+			const errorMessage =
+				error.response?.data?.error?.message || "Invalid credentials";
+			console.error("Strapi authentication failed:", errorMessage);
+			throw new Error(`Authentication failed: ${errorMessage}`);
+		}
 	}
 
 	/**
